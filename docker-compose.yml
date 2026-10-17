@@ -1,0 +1,55 @@
+# Entorno local: PostgreSQL (datos del catálogo) + MinIO (fotos, compatible con S3).
+# Uso: docker compose up -d
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: solena
+      POSTGRES_PASSWORD: solena
+      POSTGRES_DB: solena
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U solena"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    # Las imágenes oficiales de MinIO ya no se publican en Docker Hub; Chainguard mantiene esta (incluye mc).
+    image: cgr.dev/chainguard/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: solena
+      MINIO_ROOT_PASSWORD: solena-secreto
+    ports:
+      - "9000:9000" # API S3
+      - "9001:9001" # Consola web: http://localhost:9001
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Crea el bucket y lo deja con lectura pública (igual que un bucket R2 público).
+  minio-init:
+    image: cgr.dev/chainguard/minio:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 solena solena-secreto &&
+      mc mb -p local/solena &&
+      mc anonymous set download local/solena
+      "
+
+volumes:
+  postgres-data:
+  minio-data:

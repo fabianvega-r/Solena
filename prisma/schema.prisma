@@ -1,0 +1,95 @@
+// Modelo de datos del catálogo.
+// Las fotos NO se guardan en la base de datos: aquí solo va su información
+// (clave en el almacenamiento, tamaño, texto alternativo, orden). Los archivos
+// viven en el bucket S3 (MinIO en local, Cloudflare R2 en producción).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Coleccion {
+  id               String    @id @default(cuid())
+  slug             String    @unique
+  nombre           String
+  temporada        String? // p. ej. "Primavera 2026"
+  descripcion      String?
+  publicada        Boolean   @default(false)
+  fechaLanzamiento DateTime?
+  orden            Int       @default(0)
+
+  prendas Prenda[]
+  // Fotos de campaña / lookbook. La primera (menor `orden`) es la portada.
+  fotos   Foto[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([publicada, fechaLanzamiento])
+}
+
+model Categoria {
+  id     String @id @default(cuid())
+  slug   String @unique
+  nombre String
+  orden  Int    @default(0)
+
+  prendas Prenda[]
+}
+
+model Prenda {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  nombre      String
+  descripcion String?
+  precio      Int? // en pesos, sin decimales. Opcional: el catálogo puede mostrarse sin precios.
+  tallas      String[] // p. ej. ["XS", "S", "M", "L"]
+  colores     String[] // p. ej. ["Negro", "Arena"]
+  disponible  Boolean  @default(true)
+  destacada   Boolean  @default(false)
+  orden       Int      @default(0)
+
+  coleccionId String
+  coleccion   Coleccion  @relation(fields: [coleccionId], references: [id], onDelete: Restrict)
+  categoriaId String?
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+
+  // La primera (menor `orden`) es la foto principal.
+  fotos Foto[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([coleccionId, orden])
+  @@index([categoriaId])
+}
+
+model Foto {
+  id    String @id @default(cuid())
+  // Prefijo en el bucket. Cada foto tiene 3 variantes WebP:
+  // `${clave}/sm.webp` (480px), `${clave}/md.webp` (960px), `${clave}/lg.webp` (1600px).
+  clave String @unique
+  alt   String @default("")
+  ancho Int // dimensiones de la variante más grande
+  alto  Int
+  // Miniatura diminuta en base64 para mostrar un desenfoque mientras carga la foto.
+  blurDataUrl String
+  bytes       Int // peso total de las 3 variantes, para controlar el uso del almacenamiento
+  orden       Int    @default(0)
+
+  // Una foto pertenece a una prenda o a una colección (lookbook), nunca a ambas.
+  prendaId    String?
+  prenda      Prenda?    @relation(fields: [prendaId], references: [id], onDelete: Cascade)
+  coleccionId String?
+  coleccion   Coleccion? @relation(fields: [coleccionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([prendaId, orden])
+  @@index([coleccionId, orden])
+}
