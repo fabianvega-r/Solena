@@ -1,9 +1,9 @@
 // GET  /api/colecciones — colecciones publicadas, la más reciente primero, con su portada.
 // POST /api/colecciones (admin) — crea una colección.
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { esAdmin, noAutorizado } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { DatosColeccion } from "@/lib/esquemas";
 import { conUrls } from "@/lib/imagenes";
 import { slugify } from "@/lib/slug";
 
@@ -27,20 +27,10 @@ export async function GET() {
   );
 }
 
-const NuevaColeccion = z.object({
-  nombre: z.string().min(1).max(120),
-  slug: z.string().max(120).optional(),
-  temporada: z.string().max(120).optional(),
-  descripcion: z.string().max(5000).optional(),
-  publicada: z.boolean().optional(),
-  fechaLanzamiento: z.coerce.date().optional(),
-  orden: z.number().int().optional(),
-});
-
 export async function POST(req: Request) {
   if (!esAdmin(req)) return noAutorizado();
 
-  const datos = NuevaColeccion.safeParse(await req.json().catch(() => null));
+  const datos = DatosColeccion.safeParse(await req.json().catch(() => null));
   if (!datos.success) {
     return NextResponse.json({ error: datos.error.flatten() }, { status: 400 });
   }
@@ -50,6 +40,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Ya existe una colección con slug "${slug}"` }, { status: 409 });
   }
 
-  const coleccion = await db.coleccion.create({ data: { ...datos.data, slug } });
+  // Toda colección nueva empieza como borrador: aún no tiene prendas, así que no puede estar lista para publicar.
+  const coleccion = await db.coleccion.create({ data: { ...datos.data, slug, publicada: false } });
   return NextResponse.json(coleccion, { status: 201 });
 }

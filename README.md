@@ -29,6 +29,7 @@ npm run db:seed      # categorías y una colección de ejemplo
 npm run dev          # http://localhost:3000
 ```
 
+- Panel de administración: http://localhost:3000/admin — la clave es el valor de `ADMIN_TOKEN`.
 - Consola de MinIO (ver las fotos subidas): http://localhost:9001 — usuario `solena`, clave `solena-secreto`.
 - Ver y editar datos a mano: `npm run db:studio`.
 
@@ -42,7 +43,30 @@ Lectura (pública):
 | GET | `/api/prendas?coleccion=&categoria=&disponible=` | Prendas con sus fotos |
 | GET | `/api/categorias` | Categorías |
 
-Administración (requiere `Authorization: Bearer <ADMIN_TOKEN>`):
+## Panel de administración
+
+En `/admin` se crean y editan colecciones y prendas, y se suben sus fotos (arrastrándolas o eligiéndolas).
+Antes de subir, el navegador convierte las fotos HEIC del iPhone a JPG y reduce las grandes para no pasar
+el límite de 4 MB. Desde ahí también se ordenan (la primera es la principal o la portada), se les escribe
+una descripción y se borran.
+
+### Publicar una colección
+
+Toda colección nueva empieza como **borrador** (no se ve en el catálogo ni en la API pública). En su página,
+el recuadro *Publicación* muestra qué falta:
+
+- **Obligatorio:** al menos una prenda, y todas las prendas con al menos una foto.
+- **Recomendado:** fotos de campaña, descripción, fecha de lanzamiento (ordena el catálogo) y precios.
+
+El botón *Publicar colección* se activa cuando lo obligatorio está completo; el servidor vuelve a
+comprobarlo al publicar (regla en `src/lib/publicacion.ts`). *Pasar a borrador* la oculta sin borrar nada.
+
+### Sesión
+
+El panel pide `ADMIN_TOKEN` una sola vez y guarda una cookie de sesión de 30 días. Cambiar `ADMIN_TOKEN`
+cierra todas las sesiones.
+
+Administración por API (requiere `Authorization: Bearer <ADMIN_TOKEN>` o la cookie de sesión del panel):
 
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -77,9 +101,8 @@ Cada foto devuelta incluye `urls.sm|md|lg`, `srcSet`, `ancho`, `alto` y `blurDat
 
 ### Límites a tener en cuenta
 
-- **Vercel acepta como máximo 4.5 MB por petición.** La API rechaza fotos de más de 4 MB, así que el
-  panel de administración (siguiente etapa) debe reducirlas en el navegador antes de subirlas.
-  Las fotos de iPhone en HEIC también deben convertirse a JPG ahí.
+- **Vercel acepta como máximo 4.5 MB por petición.** La API rechaza fotos de más de 4 MB; el panel ya las
+  reduce en el navegador antes de subirlas. Si subes por API directamente, redúcelas tú.
 - **R2 gratuito: 10 GB.** Con ~400 KB por foto (las 3 variantes juntas) caben unas **25 000 fotos**.
   Consulta el uso real en `/api/uso`.
 - **Neon gratuito: 1 GB** de base de datos. Solo guarda texto, así que alcanza para cientos de miles de prendas.

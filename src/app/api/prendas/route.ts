@@ -2,9 +2,9 @@
 //      Prendas de colecciones publicadas, con sus fotos ordenadas.
 // POST /api/prendas (admin) — crea una prenda.
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { esAdmin, noAutorizado } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { DatosPrenda } from "@/lib/esquemas";
 import { conUrls } from "@/lib/imagenes";
 import { slugify } from "@/lib/slug";
 
@@ -33,24 +33,10 @@ export async function GET(req: Request) {
   return NextResponse.json(prendas.map((p) => ({ ...p, fotos: p.fotos.map(conUrls) })));
 }
 
-const NuevaPrenda = z.object({
-  nombre: z.string().min(1).max(160),
-  slug: z.string().max(160).optional(),
-  descripcion: z.string().max(5000).optional(),
-  precio: z.number().int().min(0).nullable().optional(),
-  tallas: z.array(z.string().min(1).max(20)).max(20).default([]),
-  colores: z.array(z.string().min(1).max(40)).max(20).default([]),
-  disponible: z.boolean().optional(),
-  destacada: z.boolean().optional(),
-  orden: z.number().int().optional(),
-  coleccionId: z.string().min(1),
-  categoriaId: z.string().min(1).nullable().optional(),
-});
-
 export async function POST(req: Request) {
   if (!esAdmin(req)) return noAutorizado();
 
-  const datos = NuevaPrenda.safeParse(await req.json().catch(() => null));
+  const datos = DatosPrenda.safeParse(await req.json().catch(() => null));
   if (!datos.success) {
     return NextResponse.json({ error: datos.error.flatten() }, { status: 400 });
   }

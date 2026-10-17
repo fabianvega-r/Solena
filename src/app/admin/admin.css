@@ -1,0 +1,778 @@
+/* Estilos del panel de administración. Sobrio y funcional; el catálogo público tendrá su propio diseño. */
+
+.admin {
+  --fondo: #f6f4f1;
+  --superficie: #ffffff;
+  --texto: #1f1c19;
+  --suave: #6f6860;
+  --borde: #e4dfd8;
+  --acento: #2f2a25;
+  --acento-texto: #ffffff;
+  --ok: #2e7d4f;
+  --ok-fondo: #e6f4ec;
+  --error: #b3261e;
+  --error-fondo: #fbe9e7;
+  --aviso: #8a5a00;
+  --aviso-fondo: #fdf1d8;
+  --radio: 10px;
+
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin {
+    --fondo: #161412;
+    --superficie: #201d1a;
+    --texto: #ede8e2;
+    --suave: #a39b91;
+    --borde: #36312c;
+    --acento: #ede8e2;
+    --acento-texto: #161412;
+    --ok: #7fd1a0;
+    --ok-fondo: #1c3326;
+    --error: #f2a49c;
+    --error-fondo: #3a1f1c;
+    --aviso: #f0c46a;
+    --aviso-fondo: #3a2e15;
+  }
+}
+
+body:has(.admin) {
+  margin: 0;
+}
+
+.admin *,
+.admin *::before,
+.admin *::after {
+  box-sizing: border-box;
+}
+
+.admin h1 {
+  font-size: 1.6rem;
+  margin: 0 0 0.5rem;
+}
+
+.admin h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.25rem;
+}
+
+.admin a {
+  color: inherit;
+}
+
+/* --- Estructura --------------------------------------------------------- */
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.marca {
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.marca span {
+  font-weight: 400;
+  color: var(--suave);
+}
+
+.barra nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.barra nav a {
+  text-decoration: none;
+  color: var(--suave);
+}
+
+.barra nav a:hover {
+  color: var(--texto);
+}
+
+.contenido {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.centrado {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.encabezado h1,
+.encabezado h2 {
+  margin: 0;
+}
+
+.volver {
+  color: var(--suave) !important;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 1.25rem;
+}
+
+.vacio {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ayuda {
+  color: var(--suave);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* --- Formularios ---------------------------------------------------------- */
+
+.formulario,
+.login {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login {
+  width: 100%;
+  max-width: 380px;
+}
+
+.admin label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin label .ayuda {
+  font-weight: 400;
+}
+
+.fila {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.fila > label {
+  min-width: 180px;
+}
+
+.admin input:not([type="checkbox"]),
+.admin select,
+.admin textarea {
+  font: inherit;
+  color: var(--texto);
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  width: 100%;
+}
+
+.admin textarea {
+  resize: vertical;
+}
+
+.admin input:focus,
+.admin select:focus,
+.admin textarea:focus {
+  outline: 2px solid var(--acento);
+  outline-offset: 1px;
+}
+
+.admin label.casilla {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.admin input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--acento);
+}
+
+/* --- Botones -------------------------------------------------------------- */
+
+.admin button,
+.boton {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  background: var(--superficie);
+  color: var(--texto);
+  padding: 0.5rem 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.admin button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.admin .primario {
+  background: var(--acento);
+  color: var(--acento-texto);
+  border-color: var(--acento);
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.admin .peligro {
+  color: var(--error);
+}
+
+.admin .enlace {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--suave);
+}
+
+.zona-peligro {
+  border-top: 1px solid var(--borde);
+  padding-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+/* --- Mensajes y estados ------------------------------------------------- */
+
+.mensaje {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.mensaje.ok {
+  background: var(--ok-fondo);
+  color: var(--ok);
+}
+
+.mensaje.error {
+  background: var(--error-fondo);
+  color: var(--error);
+}
+
+.estado {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--fondo);
+  color: var(--suave);
+  border: 1px solid var(--borde);
+  white-space: nowrap;
+}
+
+.estado.publicada {
+  background: var(--ok-fondo);
+  color: var(--ok);
+  border-color: transparent;
+}
+
+.estado.aviso {
+  background: var(--aviso-fondo);
+  color: var(--aviso);
+  border-color: transparent;
+}
+
+/* --- Colecciones ---------------------------------------------------------- */
+
+.rejilla {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.coleccion {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.coleccion:hover {
+  border-color: var(--suave);
+}
+
+.portada {
+  aspect-ratio: 4 / 5;
+  background: var(--fondo) center / cover;
+  display: grid;
+  place-items: center;
+  color: var(--suave);
+  font-size: 0.85rem;
+}
+
+.portada img,
+.miniatura img,
+.foto-marco img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.coleccion-texto {
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+}
+
+.coleccion-texto span:not(.estado) {
+  color: var(--suave);
+  font-size: 0.875rem;
+}
+
+/* --- Prendas -------------------------------------------------------------- */
+
+.lista-prendas {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lista-prendas li + li {
+  border-top: 1px solid var(--borde);
+}
+
+.lista-prendas a {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.6rem 0.25rem;
+  text-decoration: none;
+}
+
+.lista-prendas a:hover strong {
+  text-decoration: underline;
+}
+
+.lista-prendas a > div:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.lista-prendas span:not(.estado) {
+  color: var(--suave);
+  font-size: 0.875rem;
+}
+
+.miniatura {
+  width: 52px;
+  height: 64px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--fondo) center / cover;
+  flex-shrink: 0;
+}
+
+.etiquetas {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* --- Fotos ---------------------------------------------------------------- */
+
+.fotos {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 1rem;
+}
+
+.foto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.foto-marco {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--fondo) center / cover;
+}
+
+.insignia {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: var(--acento);
+  color: var(--acento-texto);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.foto textarea {
+  font-size: 0.85rem !important;
+}
+
+.foto-acciones {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.foto-acciones button {
+  padding: 0.3rem 0.6rem;
+}
+
+.foto-acciones .peligro {
+  margin-left: auto;
+}
+
+.subidas {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+}
+
+.subidas li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--fondo);
+  border-radius: 8px;
+}
+
+.subidas li span:first-child {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subidas li.error {
+  background: var(--error-fondo);
+  color: var(--error);
+}
+
+.zona-subida {
+  margin-top: 1rem;
+  border: 2px dashed var(--borde);
+  border-radius: var(--radio);
+  padding: 1.75rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.zona-subida span {
+  color: var(--suave);
+  font-size: 0.875rem;
+}
+
+.zona-subida:hover,
+.zona-subida.activa {
+  border-color: var(--acento);
+  background: var(--fondo);
+}
+
+@media (max-width: 600px) {
+  .barra {
+    padding: 0.75rem 1rem;
+  }
+  .barra nav {
+    gap: 0.9rem;
+  }
+  .tarjeta {
+    padding: 1rem;
+  }
+  .fotos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- Aviso después de crear ------------------------------------------------ */
+
+.aviso-creado {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radio);
+  background: var(--ok-fondo);
+  color: var(--ok);
+  animation: aparecer 0.25s ease-out;
+}
+
+.aviso-creado > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.aviso-creado p {
+  margin: 0;
+  color: var(--texto);
+}
+
+.aviso-icono {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--ok);
+  color: var(--superficie);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.aviso-creado .acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.aviso-creado .enlace {
+  color: var(--ok);
+  font-size: 1rem;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* --- Publicación ----------------------------------------------------------- */
+
+.admin {
+  --listo: #1d5fa8;
+  --listo-fondo: #e3eefa;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin {
+    --listo: #8cbcf0;
+    --listo-fondo: #17283b;
+  }
+}
+
+.estado.listo {
+  background: var(--listo-fondo);
+  color: var(--listo);
+  border-color: transparent;
+}
+
+.mensaje.aviso {
+  background: var(--aviso-fondo);
+  color: var(--aviso);
+}
+
+.publicacion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  border-left-width: 4px;
+}
+
+.publicacion.ok {
+  border-left-color: var(--ok);
+}
+
+.publicacion.aviso {
+  border-left-color: var(--aviso);
+}
+
+.publicacion.listo {
+  border-left-color: var(--listo);
+}
+
+.publicacion.borrador {
+  border-left-color: var(--suave);
+}
+
+.publicacion h3 {
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--suave);
+}
+
+.publicacion-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.progreso-texto {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--suave);
+  white-space: nowrap;
+}
+
+.progreso {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--fondo);
+  overflow: hidden;
+}
+
+.progreso > div {
+  height: 100%;
+  background: var(--listo);
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.publicacion.listo .progreso > div {
+  background: var(--ok);
+}
+
+.pasos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.pasos li {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+
+.pasos li > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.pasos small {
+  color: var(--suave);
+  font-size: 0.82rem;
+}
+
+.pasos a {
+  font-weight: 600;
+}
+
+.paso-icono {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.pasos .cumplido .paso-icono {
+  background: var(--ok);
+  color: var(--superficie);
+}
+
+.pasos .cumplido > div > span {
+  color: var(--suave);
+  text-decoration: line-through;
+}
+
+.pasos .pendiente .paso-icono {
+  background: var(--aviso-fondo);
+  color: var(--aviso);
+  border: 1px solid var(--aviso);
+}
+
+.pasos .opcional .paso-icono {
+  border: 1px solid var(--borde);
+  color: var(--suave);
+}
+
+.publicacion details summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--suave);
+  margin-bottom: 0.6rem;
+}
+
+.publicacion-acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding-top: 0.25rem;
+}
