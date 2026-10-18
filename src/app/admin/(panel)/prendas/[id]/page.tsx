@@ -4,20 +4,12 @@ import { exigirAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { conUrls } from "@/lib/imagenes";
 import { borrarPrenda, guardarPrenda } from "../../../acciones";
-import { AvisoCreado } from "../../../_componentes/Aviso";
 import { BotonBorrar, FormularioPrenda } from "../../../_componentes/Formularios";
 import { GestorFotos } from "../../../_componentes/GestorFotos";
 
-export default async function EditarPrenda({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ creada?: string }>;
-}) {
+export default async function EditarPrenda({ params }: { params: Promise<{ id: string }> }) {
   await exigirAdmin();
   const { id } = await params;
-  const { creada } = await searchParams;
 
   const [prenda, colecciones, categorias] = await Promise.all([
     db.prenda.findUnique({
@@ -46,23 +38,6 @@ export default async function EditarPrenda({
         <p className="mensaje aviso">
           Esta prenda ya se ve en el catálogo pero no tiene fotos. Súbele al menos una.
         </p>
-      )}
-
-      {creada && (
-        <AvisoCreado titulo={`Prenda «${prenda.nombre}» creada en ${prenda.coleccion.nombre}`}>
-          <p>Ahora súbele fotos: la primera será la foto principal en el catálogo.</p>
-          <div className="acciones">
-            <a href="#fotos" className="boton primario">
-              Subir fotos
-            </a>
-            <Link href={`/admin/prendas/nueva?coleccion=${prenda.coleccionId}`} className="boton">
-              Crear otra prenda
-            </Link>
-            <Link href={`/admin/colecciones/${prenda.coleccionId}`} className="boton">
-              Volver a la colección
-            </Link>
-          </div>
-        </AvisoCreado>
       )}
 
       <FormularioPrenda

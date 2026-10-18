@@ -20,6 +20,7 @@ export type Revision = {
 // Solo los datos que necesita la revisión; se obtienen con `seleccionRevision`.
 export type ColeccionARevisar = {
   id: string;
+  portadaId: string | null;
   descripcion: string | null;
   fechaLanzamiento: Date | null;
   _count: { fotos: number };
@@ -28,6 +29,7 @@ export type ColeccionARevisar = {
 
 export const seleccionRevision = {
   id: true,
+  portadaId: true,
   descripcion: true,
   fechaLanzamiento: true,
   _count: { select: { fotos: true } },
@@ -36,6 +38,31 @@ export const seleccionRevision = {
     orderBy: [{ destacada: "desc" }, { orden: "asc" }, { createdAt: "desc" }],
   },
 } satisfies Prisma.ColeccionSelect;
+
+// Portada: la foto elegida o, en colecciones antiguas, su primera foto de campaña.
+export function tienePortada(c: { portadaId: string | null; _count: { fotos: number } }) {
+  return !!c.portadaId || c._count.fotos > 0;
+}
+
+// Al subir la primera foto de una prenda, si la colección aún no tiene portada, esa foto
+// pasa a serlo. Así se puede publicar sin otro paso; en el panel se puede cambiar después.
+export async function asignarPortadaSiFalta(fotoId: string, prendaId: string) {
+  const prenda = await db.prenda.findUnique({
+    where: { id: prendaId },
+    select: { coleccion: { select: { id: true, portadaId: true, _count: { select: { fotos: true } } } } },
+  });
+  if (!prenda || tienePortada(prenda.coleccion)) return;
+  await db.coleccion.update({ where: { id: prenda.coleccion.id }, data: { portadaId: fotoId } });
+}
+
+// Solo puede ser portada una foto de la propia colección: de campaña o de una de sus prendas.
+export async function esFotoDeColeccion(fotoId: string, coleccionId: string): Promise<boolean> {
+  const foto = await db.foto.findFirst({
+    where: { id: fotoId, OR: [{ coleccionId }, { prenda: { coleccionId } }] },
+    select: { id: true },
+  });
+  return !!foto;
+}
 
 // "Vestido, Blusa, Falda y 2 más"
 function nombres(lista: { nombre: string }[], maximo = 3) {
@@ -69,28 +96,21 @@ export function revisarColeccion(c: ColeccionARevisar): Revision {
           : undefined,
       enlace: sinFoto.length > 0 ? `/admin/prendas/${sinFoto[0].id}#fotos` : undefined,
     },
+    {
+      id: "portada",
+      texto: "Elegir la foto de portada",
+      cumplido: tienePortada(c),
+      detalle: tienePortada(c) ? undefined : "Es la foto con la que se presenta la colección. Se elige entre las fotos de sus prendas.",
+      enlace: tienePortada(c) ? undefined : `${base}/portada`,
+    },
   ];
 
   const recomendaciones: Paso[] = [
-    {
-      id: "portada",
-      texto: "Subir fotos de campaña",
-      cumplido: c._count.fotos > 0,
-      detalle: c._count.fotos > 0 ? undefined : "Sin ellas, la portada será la foto de la primera prenda.",
-      enlace: c._count.fotos > 0 ? undefined : `${base}#fotos`,
-    },
     {
       id: "descripcion",
       texto: "Escribir una descripción",
       cumplido: !!c.descripcion,
       enlace: c.descripcion ? undefined : `${base}#datos`,
-    },
-    {
-      id: "fecha",
-      texto: "Definir la fecha de lanzamiento",
-      cumplido: !!c.fechaLanzamiento,
-      detalle: c.fechaLanzamiento ? undefined : "El catálogo ordena las colecciones por esta fecha.",
-      enlace: c.fechaLanzamiento ? undefined : `${base}#datos`,
     },
   ];
   // Sin prendas no tiene sentido hablar de precios: lo cubre el primer requisito.

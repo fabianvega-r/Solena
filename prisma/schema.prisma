@@ -24,8 +24,13 @@ model Coleccion {
   orden            Int       @default(0)
 
   prendas Prenda[]
-  // Fotos de campaña / lookbook. La primera (menor `orden`) es la portada.
-  fotos   Foto[]
+  // Fotos de campaña / lookbook (opcionales).
+  fotos   Foto[]   @relation("FotosColeccion")
+  eventos Evento[]
+
+  // Portada elegida en el panel: normalmente la foto de una de sus prendas, para no subirla dos veces.
+  portadaId String?
+  portada   Foto?   @relation("PortadaColeccion", fields: [portadaId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,7 +65,9 @@ model Prenda {
   categoria   Categoria? @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
 
   // La primera (menor `orden`) es la foto principal.
-  fotos Foto[]
+  fotos      Foto[]
+  eventos    Evento[]
+  reacciones Reaccion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,10 +93,71 @@ model Foto {
   prendaId    String?
   prenda      Prenda?    @relation(fields: [prendaId], references: [id], onDelete: Cascade)
   coleccionId String?
-  coleccion   Coleccion? @relation(fields: [coleccionId], references: [id], onDelete: Cascade)
+  coleccion   Coleccion? @relation("FotosColeccion", fields: [coleccionId], references: [id], onDelete: Cascade)
+
+  // Colecciones que usan esta foto como portada.
+  portadaDe Coleccion[] @relation("PortadaColeccion")
+  // Si es la foto de «Sobre la marca».
+  tienda    Tienda?     @relation("FotoTienda")
 
   createdAt DateTime @default(now())
 
   @@index([prendaId, orden])
   @@index([coleccionId, orden])
+}
+
+// «Sobre Solena»: una sola fila con cómo nació la marca y quién la fundó.
+model Tienda {
+  id       String  @id @default("solena")
+  titulo   String? // frase de presentación, p. ej. "Ropa hecha a mano en Valledupar"
+  historia String? // cómo nació Solena
+
+  // Quién está detrás: su foto (fotoId), nombre, cargo y su propio texto.
+  fundadoraNombre String?
+  fundadoraCargo  String? // p. ej. "Fundadora y diseñadora"
+  fundadoraTexto  String?
+  fotoId   String? @unique
+  foto     Foto?   @relation("FotoTienda", fields: [fotoId], references: [id], onDelete: SetNull)
+
+  updatedAt DateTime @updatedAt
+}
+
+// --- Métricas del catálogo -------------------------------------------------
+// Sin datos personales: `visitante` es un código al azar que el navegador guarda
+// en una cookie. Sirve para contar personas distintas, no para saber quiénes son.
+
+enum TipoEvento {
+  VISITA // abrió una página del catálogo
+  WHATSAPP // tocó un botón para escribir por WhatsApp
+}
+
+model Evento {
+  id        String     @id @default(cuid())
+  tipo      TipoEvento
+  visitante String
+  dia       DateTime   @db.Date // día en hora de Colombia
+  ruta      String // "/", "/colecciones/<slug>" o "/prendas/<slug>"
+
+  prendaId    String?
+  prenda      Prenda?    @relation(fields: [prendaId], references: [id], onDelete: SetNull)
+  coleccionId String?
+  coleccion   Coleccion? @relation(fields: [coleccionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  // Una misma persona cuenta una vez por página y por día, aunque recargue.
+  @@unique([tipo, visitante, dia, ruta])
+  @@index([dia, tipo])
+  @@index([prendaId])
+}
+
+// Corazón de un visitante a una prenda. Quitar el corazón borra la fila.
+model Reaccion {
+  prendaId  String
+  prenda    Prenda   @relation(fields: [prendaId], references: [id], onDelete: Cascade)
+  visitante String
+  createdAt DateTime @default(now())
+
+  @@id([prendaId, visitante])
+  @@index([createdAt])
 }

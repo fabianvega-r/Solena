@@ -9,10 +9,13 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
     <>
       <header className="barra">
         <Link href="/admin" className="marca">
-          Solena <span>Panel</span>
+          <img src="/logo.png" alt="Solena" width={752} height={274} />
+          <span>Panel</span>
         </Link>
         <nav>
           <Link href="/admin">Colecciones</Link>
+          <Link href="/admin/marca">Sobre Solena</Link>
+          <Link href="/admin/metricas">Métricas</Link>
           <a href="/" target="_blank" rel="noreferrer">
             Ver sitio
           </a>

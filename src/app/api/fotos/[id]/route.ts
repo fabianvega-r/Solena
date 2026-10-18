@@ -1,5 +1,6 @@
 // PATCH  /api/fotos/:id (admin) — cambia `alt` u `orden`.
 // DELETE /api/fotos/:id (admin) — borra la foto de la base de datos y del bucket.
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { esAdmin, noAutorizado } from "@/lib/auth";
@@ -28,6 +29,7 @@ export async function PATCH(req: Request, { params }: Contexto) {
   if (!existe) return NextResponse.json({ error: "No existe" }, { status: 404 });
 
   const foto = await db.foto.update({ where: { id }, data: cambios.data });
+  revalidatePath("/", "layout");
   return NextResponse.json(conUrls(foto));
 }
 
@@ -40,5 +42,6 @@ export async function DELETE(req: Request, { params }: Contexto) {
 
   await db.foto.delete({ where: { id } });
   await borrarArchivosFoto(foto.clave);
+  revalidatePath("/", "layout");
   return new NextResponse(null, { status: 204 });
 }

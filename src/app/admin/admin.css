@@ -1,13 +1,15 @@
-/* Estilos del panel de administración. Sobrio y funcional; el catálogo público tendrá su propio diseño. */
+/* Estilos del panel de administración. Siempre claro y con la identidad de Solena (dorado del logo,
+   texto añil), sobrio y funcional para trabajar cómodo. */
 
 .admin {
-  --fondo: #f6f4f1;
+  --fondo: #f5f5f2;
   --superficie: #ffffff;
-  --texto: #1f1c19;
-  --suave: #6f6860;
-  --borde: #e4dfd8;
-  --acento: #2f2a25;
+  --texto: #1f2a44;
+  --suave: #5b6276;
+  --borde: #e2e0d9;
+  --acento: #86661c; /* dorado del logo, oscurecido para que el texto blanco se lea */
   --acento-texto: #ffffff;
+  --oro: #ac8129;
   --ok: #2e7d4f;
   --ok-fondo: #e6f4ec;
   --error: #b3261e;
@@ -19,25 +21,8 @@
   min-height: 100vh;
   background: var(--fondo);
   color: var(--texto);
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-
-@media (prefers-color-scheme: dark) {
-  .admin {
-    --fondo: #161412;
-    --superficie: #201d1a;
-    --texto: #ede8e2;
-    --suave: #a39b91;
-    --borde: #36312c;
-    --acento: #ede8e2;
-    --acento-texto: #161412;
-    --ok: #7fd1a0;
-    --ok-fondo: #1c3326;
-    --error: #f2a49c;
-    --error-fondo: #3a1f1c;
-    --aviso: #f0c46a;
-    --aviso-fondo: #3a2e15;
-  }
+  font: 15px/1.5 var(--letra-panel, system-ui), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
 }
 
 body:has(.admin) {
@@ -336,8 +321,15 @@ body:has(.admin) {
   gap: 1rem;
 }
 
+/* Todas las tarjetas del mismo alto, aunque el nombre ocupe más líneas. */
+.rejilla > li {
+  display: flex;
+}
+
 .coleccion {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   padding: 0;
   overflow: hidden;
   text-decoration: none;
@@ -348,13 +340,21 @@ body:has(.admin) {
   border-color: var(--suave);
 }
 
+/* Marco fijo 4:5: la foto se recorta para llenarlo, nunca lo estira. */
 .portada {
+  position: relative;
+  overflow: hidden;
   aspect-ratio: 4 / 5;
   background: var(--fondo) center / cover;
   display: grid;
   place-items: center;
   color: var(--suave);
   font-size: 0.85rem;
+}
+
+.portada img {
+  position: absolute;
+  inset: 0;
 }
 
 .portada img,
@@ -542,12 +542,27 @@ body:has(.admin) {
   background: var(--fondo);
 }
 
+.barra nav a,
+.barra nav button {
+  white-space: nowrap;
+}
+
+/* En celular: menú compacto, sin desbordar la pantalla, y colecciones de 2 en 2. */
 @media (max-width: 600px) {
   .barra {
-    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    padding: 0.6rem 1rem;
+    gap: 0.5rem 1rem;
   }
   .barra nav {
-    gap: 0.9rem;
+    gap: 0.85rem;
+    font-size: 0.875rem;
+  }
+  .marca img {
+    height: 1.6rem;
+  }
+  .marca span {
+    display: none; /* «Panel»: el menú ya deja claro dónde estás */
   }
   .tarjeta {
     padding: 1rem;
@@ -555,6 +570,19 @@ body:has(.admin) {
   .fotos {
     grid-template-columns: repeat(2, 1fr);
   }
+  .rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .coleccion-texto {
+    padding: 0.6rem 0.75rem 0.75rem;
+  }
+}
+
+/* La tarjeta de colección no lleva relleno: la foto va de borde a borde.
+   Dos clases (.tarjeta.coleccion) pesan más que una (.tarjeta), así gana en cualquier pantalla. */
+.tarjeta.coleccion {
+  padding: 0;
 }
 
 /* --- Aviso después de crear ------------------------------------------------ */
@@ -617,13 +645,6 @@ body:has(.admin) {
 .admin {
   --listo: #1d5fa8;
   --listo-fondo: #e3eefa;
-}
-
-@media (prefers-color-scheme: dark) {
-  .admin {
-    --listo: #8cbcf0;
-    --listo-fondo: #17283b;
-  }
 }
 
 .estado.listo {
@@ -775,4 +796,425 @@ body:has(.admin) {
   gap: 0.5rem;
   align-items: flex-start;
   padding-top: 0.25rem;
+}
+
+/* --- Métricas ----------------------------------------------------------- */
+
+.periodos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.periodos a {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.periodos a[aria-current="page"] {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: var(--acento-texto);
+}
+
+.resumen-frase {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.cifras {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cifras li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.cifras strong {
+  font-size: 2rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.cifras small {
+  color: var(--suave);
+}
+
+.tabla-desplazable {
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+
+.tabla-metricas {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla-metricas th,
+.tabla-metricas td {
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--borde);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tabla-metricas thead th {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--suave);
+}
+
+.tabla-metricas th:first-child {
+  text-align: left;
+  white-space: normal;
+}
+
+.tabla-metricas tbody th {
+  font-weight: 500;
+}
+
+.tabla-metricas tbody th small {
+  display: block;
+  font-weight: 400;
+  color: var(--suave);
+}
+
+/* --- Marca --------------------------------------------------------------- */
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.marca img {
+  height: 1.9rem;
+  width: auto;
+}
+
+.admin .primario:hover:not(:disabled) {
+  background: #6e5416;
+  border-color: #6e5416;
+}
+
+.admin :focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 2px;
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Pasos para publicar una colección ----------------------------------- */
+
+.pasos-coleccion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+
+.pasos-coleccion li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Línea entre pasos */
+.pasos-coleccion li + li::before {
+  content: "";
+  width: 1.25rem;
+  height: 1px;
+  background: var(--borde);
+}
+
+.pasos-coleccion a,
+.pasos-coleccion li > span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.75rem 0.3rem 0.3rem;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--suave);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.paso-numero {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--fondo);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pasos-coleccion .hecho a {
+  color: var(--texto);
+}
+
+.pasos-coleccion .hecho .paso-numero {
+  background: var(--ok-fondo);
+  color: var(--ok);
+}
+
+.pasos-coleccion .actual > span {
+  border-color: var(--acento);
+  color: var(--texto);
+  font-weight: 600;
+}
+
+.pasos-coleccion .actual .paso-numero {
+  background: var(--acento);
+  color: var(--acento-texto);
+}
+
+.pasos-coleccion a:hover {
+  border-color: var(--acento);
+}
+
+/* --- Asistente: foto de campaña y prenda nueva --------------------------- */
+
+.siguiente-paso {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.fotos-nuevas {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.fotos-nuevas legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.admin button.zona-subida {
+  display: flex;
+  width: 100%;
+  padding: 1.75rem 1rem;
+  border: 2px dashed var(--borde);
+  border-radius: var(--radio);
+  background: transparent;
+  white-space: normal;
+}
+
+.que-sigue strong {
+  font-size: 1.05rem;
+}
+
+.que-sigue .faltan {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--texto);
+}
+
+/* --- Portada de la colección --------------------------------------------- */
+
+.portada-opciones {
+  margin: 0;
+}
+
+.admin button.portada-opcion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.4rem;
+  border: 2px solid transparent;
+  border-radius: var(--radio);
+  background: transparent;
+  text-align: left;
+  white-space: normal;
+}
+
+.admin button.portada-opcion:hover {
+  border-color: var(--borde);
+}
+
+.admin button.portada-opcion.activa {
+  border-color: var(--acento);
+  background: var(--fondo);
+}
+
+.portada-origen {
+  font-size: 0.85rem;
+  color: var(--suave);
+}
+
+.portada-resumen {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.portada-resumen .foto-marco {
+  flex: none;
+  width: 7.5rem;
+  display: grid;
+  place-items: center;
+  color: var(--suave);
+  font-size: 0.85rem;
+}
+
+.portada-resumen h2 {
+  margin-bottom: 0.25rem;
+}
+
+.portada-resumen .ayuda {
+  margin: 0 0 0.75rem;
+}
+
+.portada-mini {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.portada-mini img {
+  width: 3rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.opcional-campana summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.opcional-campana[open] summary {
+  margin-bottom: 1rem;
+}
+
+.opcional-campana .tarjeta {
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+/* --- Buscador, filtro por estado y paginación ----------------------------- */
+
+.buscador {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.buscador input {
+  flex: 1;
+}
+
+.filtro-estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filtro-estado a {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--suave);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.filtro-estado a[aria-current="page"] {
+  background: var(--texto);
+  border-color: var(--texto);
+  color: var(--superficie);
+}
+
+.resultado-busqueda {
+  margin: 0;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--suave);
+}
+
+.boton.deshabilitado {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* En tarjetas angostas, la etiqueta de estado puede bajar a otra línea en vez de salirse. */
+.coleccion-texto .estado {
+  max-width: 100%;
+  white-space: normal;
+}
+
+/* --- Sobre la marca --------------------------------------------------------- */
+
+.foto-marca {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.foto-marca .foto-marco {
+  flex: none;
+  width: 9rem;
+  display: grid;
+  place-items: center;
+  color: var(--suave);
+  font-size: 0.85rem;
+}
+
+.foto-marca h2 {
+  margin-bottom: 0.25rem;
+}
+
+.foto-marca .ayuda {
+  margin: 0 0 0.75rem;
+}
+
+.foto-marca .mensaje {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .barra nav {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+  .foto-marca {
+    flex-direction: column;
+  }
 }

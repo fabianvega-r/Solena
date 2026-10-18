@@ -49,7 +49,7 @@ export function PanelPublicacion({ id, publicada, revision }: { id: string; publ
   }
 
   return (
-    <section className={`tarjeta publicacion ${tono}`} aria-labelledby="titulo-publicacion">
+    <section className={`tarjeta publicacion ${tono}`} id="publicar" aria-labelledby="titulo-publicacion">
       <div className="publicacion-cabecera">
         <div>
           <h2 id="titulo-publicacion">{titulo}</h2>

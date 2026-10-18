@@ -1,16 +1,35 @@
+// Paso 2 del asistente: crear prendas una por una, cada una con sus fotos.
 import Link from "next/link";
 import { exigirAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { guardarPrenda } from "../../../acciones";
-import { FormularioPrenda } from "../../../_componentes/Formularios";
+import { AvisoCreado } from "../../../_componentes/Aviso";
+import { NuevaPrenda } from "../../../_componentes/NuevaPrenda";
+import { avanceDe, PasosColeccion } from "../../../_componentes/PasosColeccion";
 
-export default async function NuevaPrenda({ searchParams }: { searchParams: Promise<{ coleccion?: string }> }) {
+export default async function PaginaNuevaPrenda({
+  searchParams,
+}: {
+  searchParams: Promise<{ coleccion?: string; creada?: string }>;
+}) {
   await exigirAdmin();
-  const { coleccion: coleccionId } = await searchParams;
+  const { coleccion: coleccionId, creada } = await searchParams;
 
-  const [colecciones, categorias] = await Promise.all([
+  const [colecciones, categorias, coleccion] = await Promise.all([
     db.coleccion.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, nombre: true } }),
     db.categoria.findMany({ orderBy: { orden: "asc" }, select: { id: true, nombre: true } }),
+    coleccionId
+      ? db.coleccion.findUnique({
+          where: { id: coleccionId },
+          select: {
+            id: true,
+            nombre: true,
+            publicada: true,
+            portadaId: true,
+            _count: { select: { fotos: true } },
+            prendas: { select: { _count: { select: { fotos: true } } } },
+          },
+        })
+      : null,
   ]);
 
   if (colecciones.length === 0) {
@@ -26,17 +45,20 @@ export default async function NuevaPrenda({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <Link href={coleccionId ? `/admin/colecciones/${coleccionId}` : "/admin"} className="volver">
-        ← Volver
+      <Link href={coleccion ? `/admin/colecciones/${coleccion.id}` : "/admin"} className="volver">
+        ← {coleccion ? coleccion.nombre : "Colecciones"}
       </Link>
+      {coleccion && <PasosColeccion actual={2} coleccion={avanceDe(coleccion)} />}
+      {coleccion && creada && (
+        <AvisoCreado titulo={`Colección «${coleccion.nombre}» creada`}>
+          <p>Quedó como borrador: nadie la ve todavía. Ahora agrega sus prendas, una por una, con sus fotos.</p>
+        </AvisoCreado>
+      )}
       <h1>Nueva prenda</h1>
-      <p className="ayuda">Después de crearla podrás agregarle fotos.</p>
-      <FormularioPrenda
-        accion={guardarPrenda.bind(null, null)}
-        coleccionId={coleccionId}
-        colecciones={colecciones}
-        categorias={categorias}
-      />
+      <p className="ayuda">
+        Llena los datos y agrega sus fotos. Al guardar podrás publicar la colección o seguir añadiendo prendas.
+      </p>
+      <NuevaPrenda coleccionId={coleccion?.id} colecciones={colecciones} categorias={categorias} />
     </>
   );
 }

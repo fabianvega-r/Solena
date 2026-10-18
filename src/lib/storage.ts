@@ -47,6 +47,9 @@ export async function borrarObjetos(claves: string[]) {
   );
 }
 
+// En desarrollo, las fotos pasan por el propio servidor de Next (ver `rewrites` en next.config.ts),
+// porque la dirección de MinIO dice "localhost" y en el celular "localhost" es el celular.
 export function urlPublica(clave: string): string {
+  if (process.env.NODE_ENV === "development") return `/almacen-local/${clave}`;
   return `${env("S3_PUBLIC_URL").replace(/\/$/, "")}/${clave}`;
 }

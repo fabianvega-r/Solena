@@ -1,0 +1,1090 @@
+/* Catálogo público de Solena. Parte del logo: dorado sobre blanco, con la espiral de la «o»
+   como único motivo. La ropa manda; todo lo demás se mantiene sobrio. */
+
+.catalogo {
+  --cal: #fbfbf9; /* fondo: blanco limpio para que la ropa se vea con su color real */
+  --blanco: #ffffff;
+  --anil: #1f2a44; /* texto: azul muy oscuro en vez de negro */
+  --anil-suave: #586079;
+  --oro: #ac8129; /* el dorado del logo: espiral, corazón */
+  --oro-hondo: #86661c; /* dorado más oscuro para botones y enlaces (contraste legible) */
+  --arena: #efeae0; /* fondo mientras cargan las fotos */
+  --linea: #e3e0d8;
+  --error: #9b2c1f;
+  --margen: clamp(1rem, 4vw, 3rem);
+  --radio-foto: 14px; /* esquinas suaves en todas las fotos */
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cal);
+  color: var(--anil);
+  font-family: var(--letra-serif), Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+}
+
+body:has(.catalogo) {
+  margin: 0;
+  background: #fbfbf9;
+}
+
+.catalogo *,
+.catalogo *::before,
+.catalogo *::after {
+  box-sizing: border-box;
+}
+
+.catalogo main {
+  flex: 1;
+}
+
+.catalogo a {
+  color: var(--oro-hondo);
+  text-underline-offset: 0.2em;
+}
+
+.catalogo :focus-visible {
+  outline: 2px solid var(--oro-hondo);
+  outline-offset: 3px;
+}
+
+.catalogo h1,
+.catalogo h2,
+.catalogo h3 {
+  font-weight: 400;
+  text-wrap: balance;
+}
+
+.solo-lectores,
+.saltar:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.saltar:focus {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 10;
+  padding: 0.5rem 1rem;
+  background: var(--blanco);
+}
+
+/* --- Piezas comunes ---------------------------------------------------------- */
+
+.catalogo .boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: var(--oro-hondo);
+  color: var(--blanco) !important;
+  font: 600 1rem/1.2 var(--letra-sans), system-ui, sans-serif;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.catalogo .boton:hover {
+  background: #6e5416;
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: var(--arena);
+  background-size: cover;
+  background-position: center;
+}
+
+.sin-foto {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: var(--arena);
+  color: var(--oro);
+}
+
+.sin-foto svg {
+  width: 28%;
+}
+
+.temporada,
+.catalogo .volver,
+.conteo,
+.precio,
+.pista {
+  font-family: var(--letra-sans), system-ui, sans-serif;
+  font-size: 0.9375rem;
+  color: var(--anil-suave);
+}
+
+.temporada {
+  margin: 0;
+}
+
+.catalogo .volver {
+  display: inline-block;
+  padding: 0.5rem 0;
+  color: var(--anil-suave) !important;
+}
+
+.catalogo .volver:hover {
+  color: var(--anil) !important;
+}
+
+/* Nombre de colección: grande pero legible. Las palabras nunca se parten por la mitad. */
+.titular {
+  margin: 0.25rem 0 1.25rem;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  overflow-wrap: break-word;
+}
+
+.entrada {
+  max-width: 34rem;
+  margin: 0 0 2rem;
+  font-size: 1.1875rem;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.entrada.recortada {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --- Cabecera y pie ------------------------------------------------------------ */
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem var(--margen);
+}
+
+.logo {
+  display: block;
+  line-height: 0;
+}
+
+.logo img {
+  height: 2.5rem;
+  width: auto;
+}
+
+.cabecera-nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.cabecera-nav a {
+  padding: 0.5rem 0;
+  font: 500 0.9375rem/1 var(--letra-sans), system-ui, sans-serif;
+  color: var(--anil);
+  white-space: nowrap;
+}
+
+.pie {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-top: 4rem;
+  padding: 2rem var(--margen) 2.5rem;
+  border-top: 1px solid var(--linea);
+  font: 0.9375rem/1.5 var(--letra-sans), system-ui, sans-serif;
+}
+
+.pie p {
+  margin: 0 0 0.5rem;
+}
+
+.pie-espiral {
+  flex: none;
+  width: 2rem;
+  color: var(--oro);
+}
+
+.pie-nota {
+  max-width: 36rem;
+  font-size: 0.8125rem;
+  color: var(--anil-suave);
+}
+
+/* --- Inicio ---------------------------------------------------------------------- */
+
+/* Todas las colecciones a la vista al entrar, con una presentación corta. */
+.inicio-colecciones {
+  padding: 1rem var(--margen) 0;
+}
+
+.inicio-intro h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.inicio-intro p {
+  max-width: 40rem;
+  margin: 0.5rem 0 0;
+  font: 1rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  color: var(--anil-suave);
+}
+
+.etiqueta-nueva {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--oro-hondo);
+  font: 600 0.8125rem/1.3 var(--letra-sans), system-ui, sans-serif;
+}
+
+/* El sello: la espiral del logo en su círculo blanco, sobre la esquina de la portada. */
+.sello {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  width: clamp(3.75rem, 7vw, 5.5rem);
+  padding: 0.75rem;
+  border-radius: 50%;
+  background: var(--blanco);
+  color: var(--oro);
+}
+
+.espiral-dibujo {
+  stroke-dasharray: 1 1.1;
+  stroke-dashoffset: 1;
+  animation: dibujar 1.6s cubic-bezier(0.6, 0.1, 0.2, 1) 0.3s forwards;
+}
+
+@keyframes dibujar {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Secciones bajo la portada: prendas de la colección, más colecciones. */
+.seccion-inicio {
+  padding: 4rem var(--margen) 0;
+}
+
+.seccion-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--linea);
+}
+
+.seccion-cabecera h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.ver-todo {
+  font: 500 0.9375rem/1.4 var(--letra-sans), system-ui, sans-serif;
+}
+
+/* Colecciones lado a lado: 2 en celular, 3 en computador. */
+.rejilla-colecciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem 0.75rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tarjeta-coleccion {
+  position: relative;
+}
+
+.tarjeta-coleccion-foto {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--arena);
+}
+
+.tarjeta-coleccion-foto .imagen,
+.tarjeta-coleccion-foto .sin-foto {
+  position: absolute;
+  inset: 0;
+}
+
+.tarjeta-coleccion h2 {
+  margin: 0.75rem 0 0.125rem;
+  font-size: clamp(1.375rem, 3vw, 2rem);
+  font-style: italic;
+  line-height: 1.05;
+}
+
+.tarjeta-coleccion h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Toda la tarjeta lleva a la colección. */
+.tarjeta-coleccion h2 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.tarjeta-coleccion:hover h2 a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+.tarjeta-coleccion p {
+  margin: 0;
+  font: 0.9375rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  color: var(--anil-suave);
+}
+
+/* «Sobre la marca»: una franja blanca que separa la historia del resto del catálogo. */
+.sobre-marca {
+  display: grid;
+  gap: 2rem;
+  margin-top: 5rem;
+  padding: 3rem var(--margen);
+  background: var(--blanco);
+}
+
+.sobre-marca h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-style: italic;
+  line-height: 1.05;
+}
+
+.historia {
+  max-width: 36rem;
+  margin: 0 0 2rem;
+  font-size: 1.125rem;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+/* --- Colección ----------------------------------------------------------------- */
+
+.cabecera-coleccion {
+  display: grid;
+  gap: 2rem;
+  padding: 0.5rem var(--margen) 3rem;
+}
+
+.cabecera-coleccion-foto {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--arena);
+}
+
+.cabecera-coleccion-foto .imagen {
+  position: absolute;
+  inset: 0;
+}
+
+.cabecera-coleccion .volver {
+  margin-bottom: 1.5rem;
+}
+
+.campana ul {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0 0 3.5rem;
+  padding: 0 var(--margen);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--margen);
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+.campana li {
+  flex: 0 0 auto;
+  width: clamp(16rem, 32vw, 30rem);
+  max-width: 85vw;
+  aspect-ratio: 4 / 5;
+  scroll-snap-align: start;
+}
+
+.prendas {
+  padding: 0 var(--margen);
+}
+
+.prendas-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--linea);
+}
+
+.prendas-cabecera h2,
+.otras h2 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.conteo {
+  margin: 0;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.filtros button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--linea);
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--anil);
+  font: 0.9375rem/1 var(--letra-sans), system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.filtros button[aria-pressed="true"] {
+  background: var(--anil);
+  border-color: var(--anil);
+  color: var(--blanco);
+}
+
+/* --- Rejilla de prendas ------------------------------------------------------ */
+
+.rejilla-prendas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: 2rem 0.75rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 699px) {
+  .rejilla-prendas .destacada {
+    grid-column: span 2;
+  }
+}
+
+.tarjeta-prenda {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta-foto {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--arena);
+}
+
+.tarjeta-foto .imagen,
+.tarjeta-foto .sin-foto {
+  position: absolute;
+  inset: 0;
+}
+
+.tarjeta-prenda h3 {
+  margin: 0.625rem 0 0.125rem;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+.tarjeta-prenda h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Toda la tarjeta lleva a la prenda; el corazón queda por encima. */
+.tarjeta-prenda h3 a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.tarjeta-prenda:hover h3 a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+.precio {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.agotada .imagen {
+  opacity: 0.55;
+}
+
+.etiqueta-agotada {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  padding: 0.25rem 0.6rem;
+  background: var(--blanco);
+  font: 0.8125rem/1.3 var(--letra-sans), system-ui, sans-serif;
+}
+
+/* --- Corazón -------------------------------------------------------------------- */
+
+.corazon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--anil);
+  cursor: pointer;
+}
+
+.tarjeta-prenda .corazon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+}
+
+.corazon svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.corazon.activo svg {
+  fill: var(--oro);
+  stroke: var(--oro);
+}
+
+.corazon.recien svg {
+  animation: latido 0.35s ease-out;
+}
+
+@keyframes latido {
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+.corazon.grande {
+  display: inline-flex;
+  gap: 0.5rem;
+  width: auto;
+  height: 3rem;
+  padding: 0 1.25rem;
+  border: 1px solid var(--linea);
+  border-radius: 999px;
+  background: var(--blanco);
+  font: 500 1rem/1 var(--letra-sans), system-ui, sans-serif;
+}
+
+.corazon-error {
+  display: block;
+  margin-top: 0.25rem;
+  font: 0.8125rem/1.4 var(--letra-sans), system-ui, sans-serif;
+  color: var(--error);
+}
+
+/* --- Ficha de la prenda -------------------------------------------------------- */
+
+.galeria ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.galeria li {
+  flex: 0 0 100%;
+  aspect-ratio: 4 / 5;
+  scroll-snap-align: start;
+}
+
+.galeria > .sin-foto {
+  aspect-ratio: 4 / 5;
+}
+
+.pista {
+  margin: 0;
+  padding: 0.5rem var(--margen) 0;
+  font-size: 0.875rem;
+}
+
+.ficha-info {
+  padding: 1.5rem var(--margen) 0;
+}
+
+.ficha-info h1 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.precio.grande {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--anil);
+}
+
+.aviso-agotada {
+  display: inline-block;
+  margin: 1rem 0 0;
+  padding: 0.4rem 0.75rem;
+  background: var(--arena);
+  font: 0.9375rem/1.4 var(--letra-sans), system-ui, sans-serif;
+}
+
+.descripcion {
+  max-width: 36rem;
+  margin: 1.25rem 0 0;
+  white-space: pre-line;
+}
+
+.opciones {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.opciones legend {
+  margin-bottom: 0.5rem;
+  padding: 0;
+  font: 600 0.9375rem/1.4 var(--letra-sans), system-ui, sans-serif;
+}
+
+.opciones div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.opciones label {
+  position: relative;
+}
+
+.opciones input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opciones span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--linea);
+  border-radius: 999px;
+  background: var(--blanco);
+  font: 0.9375rem/1 var(--letra-sans), system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.opciones input:checked + span {
+  background: var(--anil);
+  border-color: var(--anil);
+  color: var(--blanco);
+}
+
+.opciones input:focus-visible + span {
+  outline: 2px solid var(--oro-hondo);
+  outline-offset: 3px;
+}
+
+.compra-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.compra-acciones .boton {
+  flex: 1 1 14rem;
+}
+
+.mensaje-previo {
+  max-width: 32rem;
+  margin: 0.875rem 0 0;
+  font: 0.875rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  color: var(--anil-suave);
+}
+
+.mensaje-previo q {
+  quotes: "«" "»";
+  color: var(--anil);
+}
+
+.otras {
+  padding: 4rem var(--margen) 0;
+}
+
+/* --- Vacío y página no encontrada ----------------------------------------------- */
+
+.catalogo .vacio {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 5rem var(--margen);
+  text-align: center;
+}
+
+.vacio-espiral {
+  width: 4.5rem;
+  color: var(--oro);
+}
+
+.catalogo .vacio h1 {
+  margin: 1rem 0 0.75rem;
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+.catalogo .vacio p {
+  margin: 0 0 2rem;
+}
+
+/* --- Tableta y computador ------------------------------------------------------- */
+
+@media (min-width: 700px) {
+  .rejilla-prendas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem 1.25rem;
+  }
+
+  .rejilla-colecciones {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem 1.25rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .logo img {
+    height: 3rem;
+  }
+
+  .cabecera-coleccion {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  .cabecera-coleccion-texto {
+    align-self: center;
+  }
+
+  .sobre-marca {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+    padding: 5rem var(--margen);
+  }
+
+  .ficha {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    padding-right: var(--margen);
+  }
+
+  .galeria ul {
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow: visible;
+  }
+
+  .galeria li {
+    flex: none;
+  }
+
+  .pista {
+    display: none;
+  }
+
+  .ficha-info {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+    padding: 1rem 0 0;
+  }
+}
+
+@media (min-width: 1100px) {
+  .rejilla-prendas {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .espiral-dibujo {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .corazon.recien svg {
+    animation: none;
+  }
+
+  .catalogo .boton {
+    transition: none;
+  }
+}
+
+/* --- Barra de administración (solo con la sesión del panel abierta) ------------ */
+
+.barra-admin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding: 0.6rem var(--margen);
+  background: var(--anil);
+  color: var(--blanco);
+  font: 0.875rem/1.4 var(--letra-sans), system-ui, sans-serif;
+}
+
+.barra-admin p {
+  margin: 0;
+}
+
+.barra-admin div {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.catalogo .barra-admin a {
+  padding: 0.25rem 0;
+  color: var(--blanco);
+  font-weight: 600;
+}
+
+.pie-nota a {
+  color: var(--anil-suave);
+}
+
+/* --- Fotos suaves y efecto al pasar el mouse ------------------------------------ */
+
+.tarjeta-foto,
+.tarjeta-coleccion-foto,
+.cabecera-coleccion-foto,
+.campana li,
+.galeria > .sin-foto {
+  border-radius: var(--radio-foto);
+  overflow: hidden;
+}
+
+/* Solo en equipos con mouse y si la persona no pidió reducir el movimiento:
+   la foto se acerca despacio y el nombre se subraya (ver :hover de cada tarjeta). */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tarjeta-foto .imagen,
+  .tarjeta-coleccion-foto .imagen {
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .tarjeta-prenda:hover .imagen,
+  .tarjeta-coleccion:hover .imagen {
+    transform: scale(1.04);
+  }
+}
+
+/* Con teclado, la tarjeta enfocada también se marca. */
+.tarjeta-prenda:focus-within .tarjeta-foto,
+.tarjeta-coleccion:focus-within .tarjeta-coleccion-foto {
+  outline: 2px solid var(--oro-hondo);
+  outline-offset: 3px;
+}
+
+/* La foto de la fundadora, en forma de arco: redonda arriba, como un sol que sale. */
+.foto-arco {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  max-width: 26rem;
+  overflow: hidden;
+  border-radius: 999px 999px var(--radio-foto) var(--radio-foto);
+  background: var(--arena);
+}
+
+.foto-arco .imagen {
+  position: absolute;
+  inset: 0;
+}
+
+.cargo {
+  margin: 0 0 1.5rem;
+  font: 0.9375rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  color: var(--anil-suave);
+}
+
+/* --- Página «Sobre Solena» -------------------------------------------------------- */
+
+.sobre-cabecera {
+  max-width: 48rem;
+  padding: 1rem var(--margen) 1rem;
+}
+
+.sobre-historia {
+  max-width: 42rem;
+  padding: 2rem var(--margen) 0;
+}
+
+.sobre-historia h2,
+.fundadora h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-style: italic;
+  line-height: 1.1;
+}
+
+.texto-largo {
+  margin-bottom: 2rem;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.texto-largo p {
+  margin: 0 0 1em;
+}
+
+.fundadora {
+  display: grid;
+  gap: 2rem;
+  margin-top: 4rem;
+  padding: 3rem var(--margen);
+  background: var(--blanco);
+}
+
+.fundadora h2 {
+  margin-bottom: 0.25rem;
+}
+
+.sobre-cierre {
+  padding: 2rem var(--margen) 0;
+  font: 500 0.9375rem/1.5 var(--letra-sans), system-ui, sans-serif;
+}
+
+@media (min-width: 900px) {
+  .galeria li {
+    border-radius: var(--radio-foto);
+    overflow: hidden;
+  }
+
+  .fundadora {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+    padding: 5rem var(--margen);
+  }
+}
+
+@media (max-width: 420px) {
+  .cabecera-nav {
+    gap: 0.9rem;
+  }
+  .logo img {
+    height: 2.1rem;
+  }
+}
+
+/* --- Cabecera de colección: contexto, datos clave y acciones -------------------- */
+
+/* «Colección Otoño»: dice qué es lo que viene debajo, con su propio espacio. */
+.antetitulo {
+  margin: 0 0 0.6rem;
+  font: 600 0.9375rem/1.3 var(--letra-sans), system-ui, sans-serif;
+  color: var(--oro-hondo);
+}
+
+.cabecera-coleccion .volver {
+  margin-bottom: 2rem;
+}
+
+.datos-coleccion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  margin: 0 0 2rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
+}
+
+.datos-coleccion dt {
+  font: 0.8125rem/1.3 var(--letra-sans), system-ui, sans-serif;
+  color: var(--anil-suave);
+}
+
+.datos-coleccion dd {
+  margin: 0.2rem 0 0;
+  font: 500 1.125rem/1.3 var(--letra-sans), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.acciones-coleccion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Botón de segundo nivel: mismo tamaño, sin relleno, para no competir con el principal. */
+.catalogo .boton.secundario {
+  background: transparent;
+  border: 1px solid var(--oro-hondo);
+  color: var(--oro-hondo) !important;
+}
+
+.catalogo .boton.secundario:hover {
+  background: var(--arena);
+}
+
+.tarjeta-coleccion .antetitulo {
+  margin: 0.1rem 0 0;
+  font-size: 0.875rem;
+}
+
+#prendas {
+  scroll-margin-top: 1rem;
+}

@@ -5,27 +5,20 @@ import { db } from "@/lib/db";
 import { conUrls } from "@/lib/imagenes";
 import { revisarColeccion } from "@/lib/publicacion";
 import { borrarColeccion, guardarColeccion } from "../../../acciones";
-import { AvisoCreado } from "../../../_componentes/Aviso";
 import { BotonBorrar, FormularioColeccion } from "../../../_componentes/Formularios";
-import { GestorFotos } from "../../../_componentes/GestorFotos";
 import { PanelPublicacion } from "../../../_componentes/PanelPublicacion";
+import { avanceDe, PasosColeccion } from "../../../_componentes/PasosColeccion";
 
 const pesos = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
 
-export default async function EditarColeccion({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ creada?: string }>;
-}) {
+export default async function EditarColeccion({ params }: { params: Promise<{ id: string }> }) {
   await exigirAdmin();
   const { id } = await params;
-  const { creada } = await searchParams;
 
   const coleccion = await db.coleccion.findUnique({
     where: { id },
     include: {
+      portada: true,
       fotos: { orderBy: { orden: "asc" } },
       _count: { select: { fotos: true } },
       prendas: {
@@ -40,35 +33,23 @@ export default async function EditarColeccion({
   });
   if (!coleccion) notFound();
   const revision = revisarColeccion(coleccion);
+  const avance = avanceDe(coleccion);
+  // Resalta el primer paso pendiente; si todo está hecho, el de publicar.
+  const pasoActual = avance.prendasConFoto === 0 ? 2 : !avance.tienePortada ? 3 : 4;
+  const portada = coleccion.portada ?? coleccion.fotos[0];
 
   return (
     <>
       <Link href="/admin" className="volver">
         ← Colecciones
       </Link>
+      <PasosColeccion actual={pasoActual} coleccion={avance} />
       <div className="encabezado">
         <h1>{coleccion.nombre}</h1>
         <span className={coleccion.publicada ? "estado publicada" : "estado"}>
           {coleccion.publicada ? "Publicada" : "Borrador"}
         </span>
       </div>
-
-      {creada && (
-        <AvisoCreado titulo={`Colección «${coleccion.nombre}» creada`}>
-          <p>
-            Quedó como borrador, así que nadie la ve todavía. Agrégale prendas con sus fotos y, cuando la lista
-            de publicación de abajo esté completa, publícala.
-          </p>
-          <div className="acciones">
-            <Link href={`/admin/prendas/nueva?coleccion=${id}`} className="boton primario">
-              Agregar prenda
-            </Link>
-            <a href="#fotos" className="boton">
-              Subir fotos
-            </a>
-          </div>
-        </AvisoCreado>
-      )}
 
       <PanelPublicacion id={id} publicada={coleccion.publicada} revision={revision} />
 
@@ -83,12 +64,25 @@ export default async function EditarColeccion({
         }}
       />
 
-      <GestorFotos
-        destino={{ coleccionId: id }}
-        fotosIniciales={coleccion.fotos.map(conUrls)}
-        titulo="Fotos de campaña"
-        ayuda="Fotos de la colección completa (lookbook). La primera es la portada."
-      />
+      <section className="tarjeta portada-resumen" id="portada">
+        <div
+          className="foto-marco"
+          style={portada ? { backgroundImage: `url(${portada.blurDataUrl})` } : undefined}
+        >
+          {portada ? <img src={conUrls(portada).urls.sm} alt="" /> : <span>Sin portada</span>}
+        </div>
+        <div>
+          <h2>Foto de portada</h2>
+          <p className="ayuda">
+            {portada
+              ? "Es la foto con la que se presenta la colección en el catálogo."
+              : "Elige una de las fotos de las prendas como portada para poder publicar."}
+          </p>
+          <Link href={`/admin/colecciones/${id}/portada`} className={portada ? "boton" : "boton primario"}>
+            {portada ? "Cambiar portada" : "Elegir portada"}
+          </Link>
+        </div>
+      </section>
 
       <section className="tarjeta">
         <div className="encabezado">

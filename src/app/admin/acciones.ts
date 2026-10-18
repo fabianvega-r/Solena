@@ -7,12 +7,15 @@ import { revalidatePath } from "next/cache";
 import type { z } from "zod";
 import { COOKIE_SESION, DURACION_SESION, exigirAdmin, tokenValido, valorSesion } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { DatosColeccion, DatosPrenda } from "@/lib/esquemas";
+import { DatosColeccion, DatosMarca, DatosPrenda } from "@/lib/esquemas";
+import { guardarTextosMarca } from "@/lib/marca";
 import { borrarArchivosFoto } from "@/lib/imagenes";
-import { revisionDeColeccion } from "@/lib/publicacion";
+import { esFotoDeColeccion, revisionDeColeccion, type Paso } from "@/lib/publicacion";
+import { conUrls } from "@/lib/imagenes";
 import { slugify } from "@/lib/slug";
 
-export type Estado = { error?: string; ok?: string } | undefined;
+// `id`: lo que se acaba de crear, para que la interfaz siga con el paso siguiente (p. ej. subir sus fotos).
+export type Estado = { error?: string; ok?: string; id?: string } | undefined;
 
 // --- Lectura de formularios ---------------------------------------------------
 
@@ -43,6 +46,11 @@ const ETIQUETAS: Record<string, string> = {
   colores: "Colores",
   coleccionId: "Colección",
   categoriaId: "Categoría",
+  titulo: "Frase de presentación",
+  historia: "Cómo nació Solena",
+  fundadoraNombre: "Nombre",
+  fundadoraCargo: "Cargo",
+  fundadoraTexto: "Sobre ella",
 };
 
 function mensajeError(error: z.ZodError): string {
@@ -97,13 +105,14 @@ export async function guardarColeccion(id: string | null, _previo: Estado, form:
     fechaLanzamiento: datos.data.fechaLanzamiento ?? null,
   };
 
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout"); // panel y catálogo público
   if (id) {
     await db.coleccion.update({ where: { id }, data });
     return { ok: "Cambios guardados." };
   }
   const coleccion = await db.coleccion.create({ data });
-  redirect(`/admin/colecciones/${coleccion.id}?creada=1`);
+  // Paso 2 del asistente: las prendas.
+  redirect(`/admin/prendas/nueva?coleccion=${coleccion.id}&creada=1`);
 }
 
 export async function cambiarPublicacion(id: string, publicar: boolean): Promise<Estado> {
@@ -119,7 +128,7 @@ export async function cambiarPublicacion(id: string, publicar: boolean): Promise
   }
 
   await db.coleccion.update({ where: { id }, data: { publicada: publicar } });
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout"); // panel y catálogo público
   return {
     ok: publicar
       ? "¡Colección publicada! Ya es visible en el catálogo."
@@ -139,7 +148,7 @@ export async function borrarColeccion(id: string): Promise<Estado> {
   await db.coleccion.delete({ where: { id } }); // borra también los registros de sus fotos
   await Promise.all(fotos.map((f) => borrarArchivosFoto(f.clave).catch(() => {})));
 
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout"); // panel y catálogo público
   redirect("/admin");
 }
 
@@ -169,13 +178,52 @@ export async function guardarPrenda(id: string | null, _previo: Estado, form: Fo
 
   const data = { ...datos.data, slug, descripcion: datos.data.descripcion ?? null };
 
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout"); // panel y catálogo público
   if (id) {
     await db.prenda.update({ where: { id }, data });
     return { ok: "Cambios guardados." };
   }
+  // No redirige: el formulario sube enseguida las fotos de la prenda y ofrece publicar o añadir otra.
   const prenda = await db.prenda.create({ data });
-  redirect(`/admin/prendas/${prenda.id}?creada=1`);
+  return { ok: "Prenda creada.", id: prenda.id };
+}
+
+// Para el asistente: ¿la colección ya se puede publicar? Si no, qué falta y dónde resolverlo.
+export async function estadoPublicacion(coleccionId: string): Promise<{
+  nombre: string;
+  slug: string;
+  publicada: boolean;
+  portada: string | null; // miniatura de la portada actual
+  faltan: Paso[];
+} | null> {
+  await exigirAdmin();
+  const [coleccion, revision] = await Promise.all([
+    db.coleccion.findUnique({
+      where: { id: coleccionId },
+      select: {
+        nombre: true,
+        slug: true,
+        publicada: true,
+        portada: true,
+        fotos: { orderBy: { orden: "asc" }, take: 1 },
+      },
+    }),
+    revisionDeColeccion(coleccionId),
+  ]);
+  if (!coleccion || !revision) return null;
+  const { portada, fotos, ...datos } = coleccion;
+  const foto = portada ?? fotos[0];
+  return { ...datos, portada: foto ? conUrls(foto).urls.sm : null, faltan: revision.requisitos.filter((p) => !p.cumplido) };
+}
+
+export async function elegirPortada(coleccionId: string, fotoId: string): Promise<Estado> {
+  await exigirAdmin();
+  if (!(await esFotoDeColeccion(fotoId, coleccionId))) {
+    return { error: "Esa foto no pertenece a esta colección." };
+  }
+  await db.coleccion.update({ where: { id: coleccionId }, data: { portadaId: fotoId } });
+  revalidatePath("/", "layout"); // panel y catálogo público
+  return { ok: "Portada actualizada." };
 }
 
 export async function borrarPrenda(id: string): Promise<Estado> {
@@ -190,6 +238,31 @@ export async function borrarPrenda(id: string): Promise<Estado> {
   await db.prenda.delete({ where: { id } });
   await Promise.all(prenda.fotos.map((f) => borrarArchivosFoto(f.clave).catch(() => {})));
 
-  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout"); // panel y catálogo público
   redirect(`/admin/colecciones/${prenda.coleccionId}`);
+}
+
+// --- Sobre la marca -------------------------------------------------------------
+
+export async function guardarMarca(_previo: Estado, form: FormData): Promise<Estado> {
+  await exigirAdmin();
+  const datos = DatosMarca.safeParse({
+    titulo: texto(form, "titulo"),
+    historia: texto(form, "historia"),
+    fundadoraNombre: texto(form, "fundadoraNombre"),
+    fundadoraCargo: texto(form, "fundadoraCargo"),
+    fundadoraTexto: texto(form, "fundadoraTexto"),
+  });
+  if (!datos.success) return { error: mensajeError(datos.error) };
+
+  const d = datos.data;
+  await guardarTextosMarca({
+    titulo: d.titulo ?? null,
+    historia: d.historia ?? null,
+    fundadoraNombre: d.fundadoraNombre ?? null,
+    fundadoraCargo: d.fundadoraCargo ?? null,
+    fundadoraTexto: d.fundadoraTexto ?? null,
+  });
+  revalidatePath("/", "layout"); // panel y catálogo público
+  return { ok: "Guardado. Ya se ve en la página «Sobre Solena» del catálogo." };
 }

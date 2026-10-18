@@ -23,3 +23,23 @@ export const DatosPrenda = z.object({
   coleccionId: z.string().min(1),
   categoriaId: z.string().min(1).nullable().optional(),
 });
+
+// Métricas que envía el navegador desde el catálogo público.
+export const DatosEvento = z.object({
+  tipo: z.enum(["visita", "whatsapp"]),
+  ruta: z.string().min(1).max(200),
+});
+
+export const DatosReaccion = z.object({
+  prendaId: z.string().min(1).max(40),
+  activa: z.boolean(),
+});
+
+// «Sobre Solena»: cómo nació la marca y quién la fundó.
+export const DatosMarca = z.object({
+  titulo: z.string().max(120).optional(),
+  historia: z.string().max(5000).optional(),
+  fundadoraNombre: z.string().max(80).optional(),
+  fundadoraCargo: z.string().max(80).optional(),
+  fundadoraTexto: z.string().max(3000).optional(),
+});
