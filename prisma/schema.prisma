@@ -127,7 +127,20 @@ model Tienda {
   fotoId   String? @unique
   foto     Foto?   @relation("FotoTienda", fields: [fotoId], references: [id], onDelete: SetNull)
 
+  // Va dentro de la cookie del panel. «Salir» la sube y así cierra TODAS las sesiones abiertas.
+  versionSesion Int @default(1)
+
   updatedAt DateTime @updatedAt
+}
+
+// Contadores de intentos para frenar abusos (claves incorrectas, visitantes falsos). Vive en la
+// base de datos y no en memoria porque Vercel corre muchas copias del servidor a la vez.
+// `clave` nunca guarda la IP: guarda una huella cifrada de ella (ver src/lib/limites.ts).
+model Limite {
+  clave          String    @id // p. ej. "acceso:<huella-ip>", "acceso:global", "visitantes:<huella-ip>"
+  cuenta         Int       @default(0)
+  desde          DateTime  @default(now()) // inicio de la ventana de conteo actual
+  bloqueadoHasta DateTime?
 }
 
 // --- Métricas del catálogo -------------------------------------------------

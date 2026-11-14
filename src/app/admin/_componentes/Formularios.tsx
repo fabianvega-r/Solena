@@ -40,7 +40,6 @@ export function FormularioLogin() {
         Clave de administración
         <input name="token" type="password" required autoFocus autoComplete="current-password" />
       </label>
-      <p className="ayuda">Es el valor de ADMIN_TOKEN en el archivo .env.</p>
       <Mensaje estado={estado} />
       <BotonGuardar texto="Entrar" pendiente={pendiente} />
     </form>

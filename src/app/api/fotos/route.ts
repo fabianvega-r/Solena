@@ -16,7 +16,7 @@ export const runtime = "nodejs"; // sharp necesita Node, no Edge
 const MAX_BYTES = 4 * 1024 * 1024;
 
 export async function POST(req: Request) {
-  if (!esAdmin(req)) return noAutorizado();
+  if (!(await esAdmin(req))) return noAutorizado();
 
   const form = await req.formData();
   const archivo = form.get("archivo");

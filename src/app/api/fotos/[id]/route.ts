@@ -17,7 +17,7 @@ const CambiosFoto = z.object({
 });
 
 export async function PATCH(req: Request, { params }: Contexto) {
-  if (!esAdmin(req)) return noAutorizado();
+  if (!(await esAdmin(req))) return noAutorizado();
   const { id } = await params;
 
   const cambios = CambiosFoto.safeParse(await req.json().catch(() => null));
@@ -34,7 +34,7 @@ export async function PATCH(req: Request, { params }: Contexto) {
 }
 
 export async function DELETE(req: Request, { params }: Contexto) {
-  if (!esAdmin(req)) return noAutorizado();
+  if (!(await esAdmin(req))) return noAutorizado();
   const { id } = await params;
 
   const foto = await db.foto.findUnique({ where: { id } });

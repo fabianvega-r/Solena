@@ -1,11 +1,28 @@
 "use server";
 // Acciones del panel de administración. Las fotos no pasan por aquí: se suben
 // directamente a /api/fotos, que ya las procesa (ver GestorFotos).
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { z } from "zod";
-import { COOKIE_SESION, DURACION_SESION, exigirAdmin, tokenValido, valorSesion } from "@/lib/auth";
+import {
+  cerrarTodasLasSesiones,
+  COOKIE_SESION,
+  crearValorSesion,
+  DURACION_SESION,
+  exigirAdmin,
+  sesionActiva,
+  tokenValido,
+} from "@/lib/auth";
+import {
+  CLAVE_ACCESO_GLOBAL,
+  enMinutos,
+  huellaIp,
+  REGLAS,
+  reiniciarIntentos,
+  segundosBloqueado,
+  sumarIntento,
+} from "@/lib/limites";
 import { limpiarColores } from "@/lib/colores";
 import { db } from "@/lib/db";
 import { DatosColeccion, DatosMarca, DatosPrenda } from "@/lib/esquemas";
@@ -65,9 +82,37 @@ function mensajeError(error: z.ZodError): string {
 
 // --- Sesión -------------------------------------------------------------------
 
+// Contra quien intenta adivinar la clave (ver REGLAS en src/lib/limites.ts):
+// - 5 claves incorrectas desde una conexión en 15 min la bloquean 15 min;
+// - 30 incorrectas en total (ataque repartido) cierran el inicio de sesión 15 min para todos;
+// - mientras hay bloqueo, la clave ni siquiera se compara; y cada error espera 1 segundo.
 export async function iniciarSesion(_previo: Estado, form: FormData): Promise<Estado> {
-  if (!tokenValido(String(form.get("token") ?? ""))) return { error: "Clave incorrecta." };
-  (await cookies()).set(COOKIE_SESION, valorSesion()!, {
+  const claveIp = `acceso:${huellaIp(await headers())}`;
+  const bloqueo = Math.max(await segundosBloqueado(claveIp), await segundosBloqueado(CLAVE_ACCESO_GLOBAL));
+  if (bloqueo) {
+    return {
+      error: `Hubo demasiados intentos con clave incorrecta. Por seguridad, espera ${enMinutos(bloqueo)} y vuelve a intentarlo.`,
+    };
+  }
+
+  if (!tokenValido(String(form.get("token") ?? ""))) {
+    const [bloqueadaIp, bloqueadoTodo] = await Promise.all([
+      sumarIntento(claveIp, REGLAS.accesoPorIp),
+      sumarIntento(CLAVE_ACCESO_GLOBAL, REGLAS.accesoGlobal),
+    ]);
+    await new Promise((listo) => setTimeout(listo, 1000)); // frena a quien prueba claves en serie
+    if (bloqueadaIp || bloqueadoTodo) {
+      return {
+        error: `Clave incorrecta. Por seguridad, el ingreso queda bloqueado ${enMinutos(REGLAS.accesoPorIp.bloqueoMs / 1000)}.`,
+      };
+    }
+    return { error: "Clave incorrecta." };
+  }
+
+  await reiniciarIntentos(claveIp);
+  const valor = await crearValorSesion();
+  if (!valor) return { error: "El panel no está configurado (falta la clave en el servidor)." };
+  (await cookies()).set(COOKIE_SESION, valor, {
     httpOnly: true,
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
@@ -77,7 +122,9 @@ export async function iniciarSesion(_previo: Estado, form: FormData): Promise<Es
   redirect("/admin");
 }
 
+// «Salir» cierra la sesión en TODOS los aparatos (sube la versión de sesión de la tienda).
 export async function cerrarSesion() {
+  if (await sesionActiva()) await cerrarTodasLasSesiones();
   (await cookies()).delete(COOKIE_SESION);
   redirect("/admin/login");
 }

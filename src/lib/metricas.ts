@@ -1,11 +1,12 @@
 // Métricas del catálogo: visitas, clics en WhatsApp y corazones. Regla única para
 // registrar (rutas /api/metricas y /api/reacciones) y para resumir (panel).
 // No se guarda nada personal: el visitante es un código al azar en una cookie.
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import type { NextResponse } from "next/server";
 import type { TipoEvento } from "@prisma/client";
-import { esAdmin } from "./auth";
+import { tieneSesion } from "./auth";
 import { db } from "./db";
+import { huellaIp, REGLAS, segundosBloqueado, sumarIntento } from "./limites";
 import { ZONA_HORARIA } from "./tienda";
 
 const COOKIE_VISITANTE = "solena_visitante";
@@ -13,16 +14,46 @@ const UN_ANIO = 60 * 60 * 24 * 365;
 const ROBOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|headless|lighthouse/i;
 const DIA_MS = 24 * 60 * 60 * 1000;
 
+// --- Solo desde el propio catálogo --------------------------------------------------
+
+// Los navegadores marcan con Sec-Fetch-Site de dónde sale cada petición. Las métricas solo se
+// aceptan desde páginas del propio sitio; un script puede imitar la cabecera, por eso además
+// hay tope de visitantes nuevos por conexión (ver puedeSumarVisitante).
+export function vieneDelCatalogo(req: Request): boolean {
+  return req.headers.get("sec-fetch-site") === "same-origin";
+}
+
 // --- Quién visita -------------------------------------------------------------
 
+// El código del visitante va firmado («código.firma»): uno inventado no se acepta, así que
+// para tener un visitante nuevo hay que pedírselo al servidor (y eso tiene tope por conexión).
+function firmaVisitante(id: string): string {
+  return createHmac("sha256", process.env.ADMIN_TOKEN ?? "solena").update(`visitante:${id}`).digest("base64url").slice(0, 22);
+}
+
 export function visitanteDe(req: Request): { id: string; nuevo: boolean } {
-  const actual = req.headers.get("cookie")?.match(new RegExp(`(?:^|;\\s*)${COOKIE_VISITANTE}=([\\w-]{20,64})`))?.[1];
-  return actual ? { id: actual, nuevo: false } : { id: randomUUID(), nuevo: true };
+  const valor = req.headers.get("cookie")?.match(new RegExp(`(?:^|;\\s*)${COOKIE_VISITANTE}=([\\w-]{36}\\.[\\w-]{22})`))?.[1];
+  if (valor) {
+    const [id, firma] = valor.split(".");
+    const esperada = firmaVisitante(id);
+    if (timingSafeEqual(Buffer.from(firma), Buffer.from(esperada))) return { id, nuevo: false };
+  }
+  return { id: randomUUID(), nuevo: true };
+}
+
+// Tope de visitantes nuevos por conexión (REGLAS.visitantesPorIp). Sin él, un script podría
+// crear miles de «visitantes» falsos y llenar la base de datos y las métricas.
+export async function puedeSumarVisitante(req: Request, visitante: { nuevo: boolean }): Promise<boolean> {
+  if (!visitante.nuevo) return true;
+  const clave = `visitantes:${huellaIp(req.headers)}`;
+  if (await segundosBloqueado(clave)) return false;
+  await sumarIntento(clave, REGLAS.visitantesPorIp);
+  return true;
 }
 
 export function guardarVisitante(res: NextResponse, visitante: { id: string; nuevo: boolean }) {
   if (!visitante.nuevo) return;
-  res.cookies.set(COOKIE_VISITANTE, visitante.id, {
+  res.cookies.set(COOKIE_VISITANTE, `${visitante.id}.${firmaVisitante(visitante.id)}`, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -32,8 +63,10 @@ export function guardarVisitante(res: NextResponse, visitante: { id: string; nue
 }
 
 // No cuentan los robots ni quien administra la tienda mientras tiene la sesión del panel abierta.
-export function debeContar(req: Request): boolean {
-  return !esAdmin(req) && !ROBOTS.test(req.headers.get("user-agent") ?? "");
+// Solo mira la cookie del panel (nunca una clave por cabecera: no debe servir para probar claves).
+export async function debeContar(req: Request): Promise<boolean> {
+  if (ROBOTS.test(req.headers.get("user-agent") ?? "")) return false;
+  return !(await tieneSesion(req));
 }
 
 // --- Fechas en hora de Colombia ----------------------------------------------

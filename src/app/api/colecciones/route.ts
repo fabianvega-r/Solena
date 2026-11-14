@@ -28,7 +28,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  if (!esAdmin(req)) return noAutorizado();
+  if (!(await esAdmin(req))) return noAutorizado();
 
   const datos = DatosColeccion.safeParse(await req.json().catch(() => null));
   if (!datos.success) {

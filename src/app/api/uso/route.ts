@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
-  if (!esAdmin(req)) return noAutorizado();
+  if (!(await esAdmin(req))) return noAutorizado();
 
   const { _count, _sum } = await db.foto.aggregate({ _count: true, _sum: { bytes: true } });
   const bytes = _sum.bytes ?? 0;

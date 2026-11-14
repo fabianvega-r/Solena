@@ -34,7 +34,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  if (!esAdmin(req)) return noAutorizado();
+  if (!(await esAdmin(req))) return noAutorizado();
 
   const datos = DatosPrenda.safeParse(await req.json().catch(() => null));
   if (!datos.success) {

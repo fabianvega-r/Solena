@@ -23,7 +23,11 @@ Otros comandos: `npm run db:migrate` (crear una migración tras cambiar `prisma/
   - `esquemas.ts`: validación zod de colecciones y prendas.
   - `publicacion.ts`: regla de "lista para publicar". La usa la interfaz (checklist) y la aplica la acción `cambiarPublicacion`.
   - `imagenes.ts`: cada foto se guarda como 3 variantes WebP (480/960/1600 px) + `blurDataUrl`.
-  - `auth.ts`: `ADMIN_TOKEN` como `Bearer` (API) o cookie de sesión `solena_admin` (panel).
+  - `auth.ts`: `ADMIN_TOKEN` como `Bearer` (API) o cookie de sesión `solena_admin` (panel). La cookie vence
+    (30 días) y lleva `Tienda.versionSesion`: «Salir» cierra todas las sesiones.
+  - `limites.ts`: límites contra abusos guardados en la tabla `Limite` (no en memoria: Vercel tiene muchas copias).
+    Claves incorrectas: 5 por conexión o 30 en total en 15 min → bloqueo de 15 min. Visitantes nuevos: 30 por hora
+    por conexión. Las IP se guardan solo como huella cifrada.
 - Panel: páginas de servidor en `src/app/admin/(panel)/` (exigen sesión), mutaciones en `src/app/admin/acciones.ts`.
   Las fotos no pasan por acciones: el navegador las prepara (`prepararFoto.ts`, HEIC → JPG, ≤ 4 MB) y las sube a `/api/fotos`.
 - Límite de Vercel: 4.5 MB por petición. La API rechaza fotos de más de 4 MB.
