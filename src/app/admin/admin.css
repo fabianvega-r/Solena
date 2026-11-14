@@ -1322,6 +1322,117 @@ body:has(.admin) {
   color: var(--ok);
 }
 
+/* --- Espacio y eliminar colección (espacio/page.tsx, EliminarColeccion.tsx) ---- */
+
+.espacio-uso p {
+  margin: 0 0 0.6rem;
+}
+
+/* Barra de cuánto del espacio gratis se usa. */
+.barra-uso {
+  height: 0.6rem;
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+}
+
+.barra-uso span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--acento);
+}
+
+.espacio-titulo {
+  margin: 2rem 0 0.25rem;
+}
+
+.lista-espacio {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista-espacio > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* Las candidatas a borrar llevan un borde de aviso a la izquierda. */
+.lista-espacio > li.candidata {
+  border-left: 4px solid var(--aviso);
+}
+
+.espacio-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+
+.espacio-nombre {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 14rem;
+}
+
+.espacio-nombre .etiquetas {
+  justify-content: flex-start;
+}
+
+.espacio-datos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(4.5rem, auto));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.espacio-datos dt {
+  font-size: 0.75rem;
+  color: var(--suave);
+}
+
+.espacio-datos dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Confirmación para eliminar: recuadro de aviso con el nombre a escribir. */
+.eliminar-coleccion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--error);
+  border-radius: var(--radio);
+  background: var(--error-fondo);
+}
+
+.eliminar-coleccion p {
+  margin: 0;
+}
+
+.eliminar-coleccion .acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin .eliminar-coleccion button.peligro:not(:disabled) {
+  background: var(--error);
+  border-color: var(--error);
+  color: #ffffff;
+}
+
 /* --- Pantalla de error del panel (error.tsx) ---------------------------------- */
 
 .error-panel {

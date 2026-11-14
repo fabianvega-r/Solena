@@ -16,6 +16,7 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
           <Link href="/admin">Colecciones</Link>
           <Link href="/admin/marca">Sobre Solena</Link>
           <Link href="/admin/metricas">Métricas</Link>
+          <Link href="/admin/espacio">Espacio</Link>
           <a href="/" target="_blank" rel="noreferrer">
             Ver sitio
           </a>

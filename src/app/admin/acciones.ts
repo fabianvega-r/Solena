@@ -25,6 +25,7 @@ import {
 } from "@/lib/limites";
 import { limpiarColores } from "@/lib/colores";
 import { db } from "@/lib/db";
+import { borrarColeccionCompleta, formatoTamano } from "@/lib/limpieza";
 import { DatosColeccion, DatosMarca, DatosPrenda } from "@/lib/esquemas";
 import { guardarTextosMarca } from "@/lib/marca";
 import { borrarArchivosFoto } from "@/lib/imagenes";
@@ -195,20 +196,24 @@ export async function cambiarPublicacion(id: string, publicar: boolean): Promise
   };
 }
 
-export async function borrarColeccion(id: string): Promise<Estado> {
+// Elimina la colección con todas sus prendas y fotos (también del almacenamiento, para ahorrar espacio).
+// `nombreEscrito`: la persona debe escribir el nombre exacto; se comprueba aquí aunque la interfaz
+// ya lo pida, para que nunca se borre una colección por un clic equivocado.
+export async function eliminarColeccion(id: string, nombreEscrito: string): Promise<Estado> {
   await exigirAdmin();
 
-  const prendas = await db.prenda.count({ where: { coleccionId: id } });
-  if (prendas > 0) {
-    return { error: `Primero borra o mueve sus ${prendas} prendas a otra colección.` };
+  const coleccion = await db.coleccion.findUnique({ where: { id }, select: { nombre: true } });
+  if (!coleccion) return { error: "La colección ya no existe." };
+  if (nombreEscrito.trim() !== coleccion.nombre.trim()) {
+    return { error: `Para confirmar, escribe el nombre exacto: «${coleccion.nombre}».` };
   }
 
-  const fotos = await db.foto.findMany({ where: { coleccionId: id }, select: { clave: true } });
-  await db.coleccion.delete({ where: { id } }); // borra también los registros de sus fotos
-  await Promise.all(fotos.map((f) => borrarArchivosFoto(f.clave).catch(() => {})));
+  const borrada = await borrarColeccionCompleta(id);
+  if (!borrada) return { error: "La colección ya no existe." };
 
   revalidatePath("/", "layout"); // panel y catálogo público
-  redirect("/admin");
+  const aviso = new URLSearchParams({ eliminada: borrada.nombre, liberado: formatoTamano(borrada.megas) });
+  redirect(`/admin/espacio?${aviso}`);
 }
 
 // --- Prendas ------------------------------------------------------------------

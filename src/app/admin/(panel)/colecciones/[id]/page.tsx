@@ -4,8 +4,10 @@ import { exigirAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { conUrls } from "@/lib/imagenes";
 import { revisarColeccion } from "@/lib/publicacion";
-import { borrarColeccion, guardarColeccion } from "../../../acciones";
-import { BotonBorrar, FormularioColeccion } from "../../../_componentes/Formularios";
+import { contenidoColeccion, formatoTamano } from "@/lib/limpieza";
+import { guardarColeccion } from "../../../acciones";
+import { EliminarColeccion } from "../../../_componentes/EliminarColeccion";
+import { FormularioColeccion } from "../../../_componentes/Formularios";
 import { PanelPublicacion } from "../../../_componentes/PanelPublicacion";
 import { avanceDe, PasosColeccion } from "../../../_componentes/PasosColeccion";
 
@@ -32,6 +34,7 @@ export default async function EditarColeccion({ params }: { params: Promise<{ id
     },
   });
   if (!coleccion) notFound();
+  const contenido = (await contenidoColeccion(id))!;
   const revision = revisarColeccion(coleccion);
   const avance = avanceDe(coleccion);
   // Resalta el primer paso pendiente; si todo está hecho, el de publicar.
@@ -126,10 +129,12 @@ export default async function EditarColeccion({ params }: { params: Promise<{ id
         )}
       </section>
 
-      <BotonBorrar
-        accion={borrarColeccion.bind(null, id)}
-        pregunta={`¿Borrar la colección «${coleccion.nombre}» y sus fotos de campaña? No se puede deshacer.`}
-        texto="Borrar colección"
+      <EliminarColeccion
+        id={id}
+        nombre={coleccion.nombre}
+        prendas={contenido.prendas}
+        fotos={contenido.fotos}
+        tamano={formatoTamano(contenido.megas)}
       />
     </>
   );
