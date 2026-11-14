@@ -1218,3 +1218,18 @@ body:has(.admin) {
     flex-direction: column;
   }
 }
+
+/* --- Pantalla de error del panel (error.tsx) ---------------------------------- */
+
+.error-panel {
+  max-width: 36rem;
+  margin: 3rem auto;
+}
+
+.error-panel .acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.25rem 0 0.5rem;
+}

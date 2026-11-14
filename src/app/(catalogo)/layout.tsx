@@ -5,6 +5,7 @@ import Link from "next/link";
 import { WHATSAPP_VISIBLE } from "@/lib/tienda";
 import { BarraAdmin } from "./_componentes/BarraAdmin";
 import { Espiral } from "./_componentes/Espiral";
+import { MenuPrincipal } from "./_componentes/MenuPrincipal";
 import { EnlaceWhatsapp, RegistroVisita } from "./_componentes/Seguimiento";
 import "./catalogo.css";
 
@@ -36,10 +37,7 @@ export default function LayoutCatalogo({ children }: { children: React.ReactNode
         <Link href="/" className="logo">
           <img src="/logo.png" alt="Solena, inicio" width={752} height={274} />
         </Link>
-        <nav className="cabecera-nav" aria-label="Principal">
-          <Link href="/sobre-solena">Sobre Solena</Link>
-          <EnlaceWhatsapp>Escríbenos</EnlaceWhatsapp>
-        </nav>
+        <MenuPrincipal />
       </header>
 
       <main id="contenido">{children}</main>

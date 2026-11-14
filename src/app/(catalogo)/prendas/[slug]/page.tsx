@@ -53,9 +53,16 @@ export default async function PaginaPrenda({ params }: Props) {
         </div>
 
         <div className="ficha-info">
-          <Link className="volver" href={`/colecciones/${p.coleccion.slug}`}>
-            Colección {p.coleccion.nombre}
+          {/* A la vista solo «← Regresar»; el lector de pantalla dice a dónde lleva. */}
+          <Link
+            className="volver"
+            href={`/colecciones/${p.coleccion.slug}`}
+            aria-label={`Regresar a la colección ${p.coleccion.nombre}`}
+          >
+            Regresar
           </Link>
+          {/* Igual que en la colección: primero qué es (de qué colección), luego el nombre. */}
+          <p className="antetitulo">Colección {p.coleccion.nombre}</p>
           <h1>{p.nombre}</h1>
           {p.precio != null && <p className="precio grande">{precio(p.precio)}</p>}
           {!p.disponible && <p className="aviso-agotada">Agotada por ahora.</p>}

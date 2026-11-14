@@ -7,9 +7,12 @@ import { Espiral } from "../../_componentes/Espiral";
 import { Imagen } from "../../_componentes/Imagen";
 import { Prendas } from "../../_componentes/Prendas";
 import { EnlaceWhatsapp } from "../../_componentes/Seguimiento";
-import { nombreTemporada, precio } from "@/lib/tienda";
+import { nombreTemporada } from "@/lib/tienda";
 
 export const revalidate = 3600;
+
+// Cuántos nombres de prenda se muestran junto al nombre de la colección; el resto, en la rejilla.
+const PRENDAS_EN_CABECERA = 5;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -26,44 +29,69 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PaginaColeccion({ params }: Props) {
   const c = await coleccionPublicada((await params).slug);
   if (!c) notFound();
-  // Las fotos de campaña, sin repetir la que ya se muestra como portada.
-  const campana = c.fotos.filter((f) => f.id !== c.portada?.id);
+  // Portada primero y luego las fotos de campaña, sin repetirla: la ropa abre la página.
+  const fotos = [...(c.portada ? [c.portada] : []), ...c.fotos.filter((f) => f.id !== c.portada?.id)];
+  // Si la foto es de una prenda (la portada suele serlo), se dice cuál es y se enlaza a ella.
+  const prendaDe = (f: (typeof fotos)[number]) => c.prendas.find((p) => p.id === f.prendaId);
+  const total = c.prendas.length;
 
   return (
     <>
       <header className="cabecera-coleccion">
+        {fotos.length > 0 && (
+          <ul className="cabecera-coleccion-fotos" aria-label="Fotos de la colección">
+            {fotos.map((f, i) => {
+              const prenda = prendaDe(f);
+              return (
+                <li key={f.id}>
+                  <Imagen foto={f} sizes="(min-width: 900px) 34vw, 85vw" prioridad={i === 0} />
+                  {i === 0 && <Espiral className="sello" animada />}
+                  {prenda && (
+                    <Link className="foto-prenda" href={`/prendas/${prenda.slug}`}>
+                      <span className="foto-prenda-etiqueta">Prenda</span>
+                      {prenda.nombre}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {/* Jerarquía simple: qué es (antetítulo) → nombre → descripción → ficha de datos → acciones.
+            Un solo estilo de etiqueta en toda la ficha, para que se lea ordenado. */}
         <div className="cabecera-coleccion-texto">
-          <Link className="volver" href="/">
-            Volver al inicio
-          </Link>
           <p className="antetitulo">{c.temporada ? nombreTemporada(c.temporada) : "Colección"}</p>
           <h1 className="titular">{c.nombre}</h1>
-          {c.descripcion && <p className="entrada">{c.descripcion}</p>}
+          {c.descripcion && <p className="cabecera-coleccion-descripcion">{c.descripcion}</p>}
 
-          {/* Lo que una clienta quiere saber de un vistazo. */}
-          <dl className="datos-coleccion">
-            {c.temporada && (
+          {/* Ficha de datos: etiqueta a la izquierda, valor a la derecha, entre líneas finas. */}
+          {total > 0 && (
+            <dl className="ficha-datos">
               <div>
-                <dt>Temporada</dt>
-                <dd>{c.temporada.charAt(0).toLocaleUpperCase("es") + c.temporada.slice(1)}</dd>
+                <dt>{total === 1 ? "Prenda" : "Prendas"}</dt>
+                <dd>
+                  {c.prendas.slice(0, PRENDAS_EN_CABECERA).map((p, i) => (
+                    <span key={p.id}>
+                      {i > 0 && " · "}
+                      <Link href={`/prendas/${p.slug}`}>{p.nombre}</Link>
+                    </span>
+                  ))}
+                  {total > PRENDAS_EN_CABECERA && (
+                    <>
+                      {" · "}
+                      <a href="#prendas">y {total - PRENDAS_EN_CABECERA} más</a>
+                    </>
+                  )}
+                </dd>
               </div>
-            )}
-            <div>
-              <dt>Prendas</dt>
-              <dd>{c.prendas.length}</dd>
-            </div>
-            {c.desde != null && (
-              <div>
-                <dt>Desde</dt>
-                <dd>{precio(c.desde)}</dd>
-              </div>
-            )}
-          </dl>
+            </dl>
+          )}
 
           <div className="acciones-coleccion">
-            {c.prendas.length > 0 && (
+            {total > 0 && (
               <a className="boton" href="#prendas">
-                Ver las prendas
+                {total === 1 ? "Ver la prenda" : `Ver las ${total} prendas`}
               </a>
             )}
             <EnlaceWhatsapp
@@ -74,25 +102,7 @@ export default async function PaginaColeccion({ params }: Props) {
             </EnlaceWhatsapp>
           </div>
         </div>
-        {c.portada && (
-          <div className="cabecera-coleccion-foto">
-            <Imagen foto={c.portada} sizes="(min-width: 900px) 45vw, 100vw" prioridad />
-            <Espiral className="sello" animada />
-          </div>
-        )}
       </header>
-
-      {campana.length > 0 && (
-        <section className="campana" aria-label="Fotos de la campaña">
-          <ul>
-            {campana.map((f) => (
-              <li key={f.id}>
-                <Imagen foto={f} sizes="(min-width: 900px) 40vw, 85vw" />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       {c.prendas.length > 0 ? (
         <Prendas prendas={c.prendas} />

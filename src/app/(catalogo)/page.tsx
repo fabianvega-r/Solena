@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { coleccionesPublicadas, coleccionPublicada } from "@/lib/catalogo";
 import { hayMarca, obtenerMarca } from "@/lib/marca";
-import { nombreTemporada, precio } from "@/lib/tienda";
+import { nombreTemporada } from "@/lib/tienda";
 import { Espiral } from "./_componentes/Espiral";
 import { Imagen } from "./_componentes/Imagen";
 import { EnlaceWhatsapp } from "./_componentes/Seguimiento";
@@ -14,6 +14,9 @@ export const revalidate = 3600;
 
 // Cuántas prendas de la colección reciente se muestran en el inicio.
 const PRENDAS_EN_INICIO = 8;
+
+// El tren de colecciones: cuánto tarda cada tarjeta en pasar. Más segundos = más despacio.
+const SEGUNDOS_POR_VAGON = 6;
 
 function cuantas(n: number) {
   return n === 1 ? "1 prenda" : `${n} prendas`;
@@ -42,35 +45,40 @@ export default async function Inicio() {
 
   return (
     <>
-      <section className="inicio-colecciones" aria-labelledby="titulo-colecciones">
+      <section className="inicio-colecciones" id="colecciones" aria-labelledby="titulo-colecciones">
         <div className="inicio-intro">
-          <h1 id="titulo-colecciones">Colecciones</h1>
+          {/* El protagonista es el logo: el título queda solo para Google y lectores de pantalla.
+              Para la vista, «Colecciones» está en el menú de arriba. */}
+          <h1 id="titulo-colecciones" className="solo-lectores">
+            Colecciones de Solena
+          </h1>
           <p>Elige una colección para ver sus prendas. Si algo te gusta, pregúntanos por WhatsApp.</p>
         </div>
-        <ul className="rejilla-colecciones">
-          {colecciones.map((c, i) => (
-            <li key={c.id} className="tarjeta-coleccion">
-              <div className="tarjeta-coleccion-foto">
-                {c.portada ? (
-                  <Imagen foto={c.portada} sizes="(min-width: 900px) 33vw, 50vw" alt="" prioridad={i < 3} />
-                ) : (
-                  <div className="sin-foto">
-                    <Espiral />
-                  </div>
-                )}
-                {i === 0 && <span className="etiqueta-nueva">Nueva</span>}
-              </div>
-              <h2>
-                <Link href={`/colecciones/${c.slug}`}>{c.nombre}</Link>
-              </h2>
-              {c.temporada && <p className="antetitulo">{nombreTemporada(c.temporada)}</p>}
-              <p>
-                {cuantas(c.totalPrendas)}
-                {c.desde != null ? `, desde ${precio(c.desde)}` : ""}
-              </p>
-            </li>
-          ))}
-        </ul>
+        {/* El tren: solo las colecciones que existen, sin repetir. Si no caben en la pantalla,
+            va hasta la última y regresa; si caben, se queda quieto (ver .tren en catalogo.css). */}
+        <div className="tren" style={{ "--duracion": `${colecciones.length * SEGUNDOS_POR_VAGON}s` } as React.CSSProperties}>
+          <ul className="tren-via">
+            {colecciones.map((c, i) => (
+              <li key={c.id} className="tarjeta-coleccion">
+                <div className="tarjeta-coleccion-foto">
+                  {c.portada ? (
+                    <Imagen foto={c.portada} sizes="(min-width: 900px) 20vw, 60vw" alt="" prioridad={i < 3} />
+                  ) : (
+                    <div className="sin-foto">
+                      <Espiral />
+                    </div>
+                  )}
+                  {i === 0 && <span className="etiqueta-nueva">Nueva</span>}
+                </div>
+                <h2>
+                  <Link href={`/colecciones/${c.slug}`}>{c.nombre}</Link>
+                </h2>
+                {c.temporada && <p className="antetitulo">{nombreTemporada(c.temporada)}</p>}
+                <p>{cuantas(c.totalPrendas)}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       {prendas.length > 0 && (

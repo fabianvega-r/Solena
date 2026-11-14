@@ -4,7 +4,6 @@ import { cache } from "react";
 import type { Foto, Prisma } from "@prisma/client";
 import { db } from "./db";
 import { conUrls } from "./imagenes";
-import { precioDesde } from "./tienda";
 
 export type FotoPublica = ReturnType<typeof conUrls<Foto>>;
 
@@ -31,7 +30,7 @@ export async function coleccionesPublicadas() {
     include: {
       portada: true,
       fotos: primeraFoto,
-      prendas: { select: { precio: true, fotos: primeraFoto }, orderBy: ordenPrendas },
+      prendas: { select: { fotos: primeraFoto }, orderBy: ordenPrendas },
       _count: { select: { prendas: true } },
     },
   });
@@ -39,7 +38,6 @@ export async function coleccionesPublicadas() {
     ...c,
     portada: portada(elegida, fotos, prendas),
     totalPrendas: _count.prendas,
-    desde: precioDesde(prendas),
   }));
 }
 
@@ -62,7 +60,6 @@ export const coleccionPublicada = cache(async (slug: string) => {
   return {
     ...c,
     portada: portada(c.portada, c.fotos, c.prendas),
-    desde: precioDesde(c.prendas),
     fotos: c.fotos.map(conUrls),
     prendas: c.prendas.map(({ fotos, ...p }) => ({ ...p, foto: fotos[0] ? conUrls(fotos[0]) : null })),
   };

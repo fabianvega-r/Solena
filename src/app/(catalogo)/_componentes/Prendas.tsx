@@ -20,7 +20,7 @@ export function Prendas({ prendas }: { prendas: PrendaResumen[] }) {
   return (
     <section className="prendas" id="prendas" aria-labelledby="titulo-prendas">
       <div className="prendas-cabecera">
-        <h2 id="titulo-prendas">Prendas</h2>
+        <h2 id="titulo-prendas">Prendas de la colección</h2>
         <p className="conteo" aria-live="polite">
           {cuantas(visibles.length)}
         </p>

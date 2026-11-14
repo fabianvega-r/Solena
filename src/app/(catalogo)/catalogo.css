@@ -13,6 +13,7 @@
   --error: #9b2c1f;
   --margen: clamp(1rem, 4vw, 3rem);
   --radio-foto: 14px; /* esquinas suaves en todas las fotos */
+  --alto-cabecera: 5rem; /* alto aproximado de la cabecera fija (logo + menú) */
 
   min-height: 100vh;
   display: flex;
@@ -133,19 +134,19 @@ body:has(.catalogo) {
   margin: 0;
 }
 
-.catalogo .volver {
-  display: inline-block;
-  padding: 0.5rem 0;
-  color: var(--anil-suave) !important;
+/* «Volver al inicio»: botón dorado (ver .cabecera-nav a), con una flecha delante. */
+.catalogo .volver::before {
+  content: "←";
 }
 
-.catalogo .volver:hover {
-  color: var(--anil) !important;
+.ficha-info .volver {
+  margin-bottom: 1.5rem;
 }
 
 /* Nombre de colección: grande pero legible. Las palabras nunca se parten por la mitad. */
 .titular {
-  margin: 0.25rem 0 1.25rem;
+  margin: 0.25rem 0 0.75rem;
+  color: var(--oro); /* el dorado del logo, igual que el nombre de cada prenda */
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   font-style: italic;
   line-height: 1;
@@ -161,21 +162,55 @@ body:has(.catalogo) {
   white-space: pre-line;
 }
 
-.entrada.recortada {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 /* --- Cabecera y pie ------------------------------------------------------------ */
 
+/* La cabecera queda fija arriba al bajar: el logo de Solena y el menú siempre a la vista.
+   Fondo casi opaco con un leve desenfoque para que lo de debajo no se mezcle con el texto. */
 .cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem var(--margen);
+  padding: 0.75rem var(--margen);
+  background: rgb(251 251 249 / 0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--linea);
+}
+
+/* Los saltos dentro de la página (#prendas, #colecciones) no quedan tapados por la cabecera. */
+html:has(.catalogo) {
+  scroll-padding-top: calc(var(--alto-cabecera, 5rem) + 0.5rem);
+}
+
+/* En el celular: arriba el logo y «Escríbenos» (siempre a la vista: es la acción de venta);
+   debajo, los botones del menú en una fila que se desliza de lado si no caben. */
+@media (max-width: 699px) {
+  .cabecera {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem var(--margen);
+  }
+
+  .cabecera-nav {
+    order: 3;
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    margin-left: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .catalogo {
+    --alto-cabecera: 6.25rem;
+  }
+
+  html:has(.catalogo) {
+    scroll-padding-top: 6.75rem;
+  }
 }
 
 .logo {
@@ -188,16 +223,52 @@ body:has(.catalogo) {
   width: auto;
 }
 
+/* En computador: logo a la izquierda; menú y «Escríbenos» a la derecha. */
 .cabecera-nav {
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-left: auto;
 }
 
-.cabecera-nav a {
-  padding: 0.5rem 0;
-  font: 500 0.9375rem/1 var(--letra-sans), system-ui, sans-serif;
-  color: var(--anil);
+/* Botones dorados en forma de píldora, sin subrayado: se ven tocables a primera vista.
+   «Escríbenos» (WhatsApp) va relleno porque es la acción principal. */
+.cabecera-nav a,
+.cabecera-whatsapp,
+.catalogo .volver,
+.ver-todo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--oro);
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--oro-hondo) !important;
+  font: 600 0.9375rem/1 var(--letra-sans), system-ui, sans-serif;
+  text-decoration: none;
   white-space: nowrap;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.cabecera-nav a:hover,
+.catalogo .volver:hover,
+.ver-todo:hover {
+  background: #f5ecd7; /* dorado muy claro */
+}
+
+.cabecera-whatsapp {
+  border-color: var(--oro-hondo);
+  background: var(--oro-hondo);
+  color: var(--blanco) !important;
+}
+
+.cabecera-whatsapp:hover {
+  background: #6e5416;
 }
 
 .pie {
@@ -239,9 +310,11 @@ body:has(.catalogo) {
   line-height: 1.1;
 }
 
+/* Centrada, igual que el tren de colecciones de debajo. */
 .inicio-intro p {
   max-width: 40rem;
-  margin: 0.5rem 0 0;
+  margin: 0 auto;
+  text-align: center;
   font: 1rem/1.5 var(--letra-sans), system-ui, sans-serif;
   color: var(--anil-suave);
 }
@@ -302,22 +375,72 @@ body:has(.catalogo) {
   line-height: 1.2;
 }
 
-.ver-todo {
-  font: 500 0.9375rem/1.4 var(--letra-sans), system-ui, sans-serif;
+.ver-todo::after {
+  content: "→";
 }
 
-/* Colecciones lado a lado: 2 en celular, 3 en computador. */
-.rejilla-colecciones {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem 0.75rem;
-  margin: 2rem 0 0;
-  padding: 0;
+/* El tren de colecciones: solo las que existen. Si no caben, avanzan despacio hasta la última,
+   esperan y regresan; se detienen al pasar el mouse o tocar una. Si caben, se quedan quietas. */
+.tren {
+  container-type: inline-size; /* para medir el ancho visible con «cqw» */
+  margin: 1.75rem calc(-1 * var(--margen)) 0;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 var(--margen), #000 calc(100% - var(--margen)), transparent);
+}
+
+.tren-via {
+  display: flex;
+  width: max-content;
+  /* Centrado cuando las colecciones caben; si no caben, «auto» vale 0 y empieza a la izquierda. */
+  margin: 0 auto;
+  padding: 0 var(--margen);
   list-style: none;
+  animation: tren-avanza var(--duracion, 12s) ease-in-out infinite alternate;
+}
+
+.tren:hover .tren-via,
+.tren:focus-within .tren-via {
+  animation-play-state: paused;
+}
+
+/* Recorrido = lo que sobra de la vía (100%) frente a lo visible (100cqw). Si no sobra nada,
+   min() deja el recorrido en 0 y el tren no se mueve. Pausa corta en cada extremo. */
+@keyframes tren-avanza {
+  0%,
+  12% {
+    transform: translateX(0);
+  }
+  88%,
+  100% {
+    transform: translateX(min(0px, calc(100cqw - 100%)));
+  }
 }
 
 .tarjeta-coleccion {
   position: relative;
+}
+
+.tren .tarjeta-coleccion {
+  flex: 0 0 auto;
+  width: clamp(12.5rem, 20vw, 18rem);
+  margin-right: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.tren .tarjeta-coleccion h2 {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+}
+
+/* En pantallas táctiles (celular, tableta) el tren no se mueve solo: con el dedo no hay cómo
+   pausarlo, así que la persona lo desliza de lado a su ritmo. Igual si pidió menos movimiento. */
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .tren {
+    overflow-x: auto;
+    mask-image: none;
+  }
+
+  .tren-via {
+    animation: none;
+  }
 }
 
 .tarjeta-coleccion-foto {
@@ -389,32 +512,23 @@ body:has(.catalogo) {
 
 /* --- Colección ----------------------------------------------------------------- */
 
+/* En el celular, las fotos van primero y el texto debajo; en computador, el texto es una
+   columna angosta y las fotos ocupan el resto. */
 .cabecera-coleccion {
   display: grid;
-  gap: 2rem;
-  padding: 0.5rem var(--margen) 3rem;
+  gap: 1.5rem;
+  padding: 0.25rem 0 2rem;
 }
 
-.cabecera-coleccion-foto {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: var(--arena);
+.cabecera-coleccion-texto {
+  padding: 0 var(--margen);
 }
 
-.cabecera-coleccion-foto .imagen {
-  position: absolute;
-  inset: 0;
-}
-
-.cabecera-coleccion .volver {
-  margin-bottom: 1.5rem;
-}
-
-.campana ul {
+/* Tira de fotos: portada y campaña, deslizable de lado. */
+.cabecera-coleccion-fotos {
   display: flex;
   gap: 0.75rem;
-  margin: 0 0 3.5rem;
+  margin: 0;
   padding: 0 var(--margen);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -423,12 +537,23 @@ body:has(.catalogo) {
   scrollbar-width: thin;
 }
 
-.campana li {
+.cabecera-coleccion-fotos li {
+  position: relative;
   flex: 0 0 auto;
-  width: clamp(16rem, 32vw, 30rem);
-  max-width: 85vw;
+  width: 85vw;
   aspect-ratio: 4 / 5;
+  background: var(--arena);
   scroll-snap-align: start;
+}
+
+/* Si hay una sola foto, ocupa todo el ancho en el celular. */
+.cabecera-coleccion-fotos li:only-child {
+  width: 100%;
+}
+
+.cabecera-coleccion-fotos .imagen {
+  position: absolute;
+  inset: 0;
 }
 
 .prendas {
@@ -637,6 +762,8 @@ body:has(.catalogo) {
 .galeria li {
   flex: 0 0 100%;
   aspect-ratio: 4 / 5;
+  /* En tableta la foto no pasa del alto de la pantalla (se recorta un poco por los lados). */
+  max-height: calc(100svh - var(--alto-cabecera) - 1rem);
   scroll-snap-align: start;
 }
 
@@ -654,8 +781,10 @@ body:has(.catalogo) {
   padding: 1.5rem var(--margen) 0;
 }
 
+/* Nombre de la prenda en el dorado del logo (en letra grande se lee bien). */
 .ficha-info h1 {
-  margin: 0.25rem 0 0.5rem;
+  margin: 0 0 0.75rem;
+  color: var(--oro);
   font-size: clamp(2.25rem, 4.5vw, 3.5rem);
   line-height: 1.05;
   letter-spacing: -0.01em;
@@ -793,11 +922,6 @@ body:has(.catalogo) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 2.5rem 1.25rem;
   }
-
-  .rejilla-colecciones {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2.5rem 1.25rem;
-  }
 }
 
 @media (min-width: 900px) {
@@ -806,13 +930,31 @@ body:has(.catalogo) {
   }
 
   .cabecera-coleccion {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    grid-template-columns: minmax(18rem, 28rem) minmax(0, 1fr);
     align-items: center;
-    gap: clamp(2rem, 5vw, 5rem);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding-bottom: 2.5rem;
   }
 
   .cabecera-coleccion-texto {
-    align-self: center;
+    order: -1;
+    padding-right: 0;
+  }
+
+  .cabecera-coleccion .titular {
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+  }
+
+  /* La altura manda: las fotos caben en la pantalla y las prendas asoman debajo. */
+  .cabecera-coleccion-fotos {
+    padding-left: 0;
+    scroll-padding-left: 0;
+  }
+
+  .cabecera-coleccion-fotos li,
+  .cabecera-coleccion-fotos li:only-child {
+    width: auto;
+    height: min(72vh, 44rem);
   }
 
   .sobre-marca {
@@ -824,19 +966,24 @@ body:has(.catalogo) {
 
   .ficha {
     display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
     gap: clamp(2rem, 4vw, 4rem);
-    padding-right: var(--margen);
+    padding: 1rem var(--margen) 0;
   }
 
   .galeria ul {
     flex-direction: column;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 1rem;
     overflow: visible;
   }
 
+  /* Cada foto cabe completa en la pantalla, debajo de la cabecera fija: la altura la pone
+     la pantalla y el ancho sale de la proporción 4:5. Centrada en su columna. */
   .galeria li {
     flex: none;
+    height: calc(100svh - var(--alto-cabecera) - 2rem);
+    max-width: 100%;
   }
 
   .pista {
@@ -845,7 +992,7 @@ body:has(.catalogo) {
 
   .ficha-info {
     position: sticky;
-    top: 2rem;
+    top: calc(var(--alto-cabecera) + 1rem); /* justo debajo de la cabecera fija */
     align-self: start;
     padding: 1rem 0 0;
   }
@@ -909,8 +1056,7 @@ body:has(.catalogo) {
 
 .tarjeta-foto,
 .tarjeta-coleccion-foto,
-.cabecera-coleccion-foto,
-.campana li,
+.cabecera-coleccion-fotos li,
 .galeria > .sin-foto {
   border-radius: var(--radio-foto);
   overflow: hidden;
@@ -930,9 +1076,10 @@ body:has(.catalogo) {
   }
 }
 
-/* Con teclado, la tarjeta enfocada también se marca. */
-.tarjeta-prenda:focus-within .tarjeta-foto,
-.tarjeta-coleccion:focus-within .tarjeta-coleccion-foto {
+/* Solo con teclado (:focus-visible) la tarjeta enfocada se marca con un borde dorado.
+   Con :focus-within el borde salía también al tocar con el dedo o el mouse. */
+.tarjeta-prenda:has(:focus-visible) .tarjeta-foto,
+.tarjeta-coleccion:has(:focus-visible) .tarjeta-coleccion-foto {
   outline: 2px solid var(--oro-hondo);
   outline-offset: 3px;
 }
@@ -1021,8 +1168,15 @@ body:has(.catalogo) {
 }
 
 @media (max-width: 420px) {
+  /* Botones del menú un poco más compactos para que quepan en celulares angostos. */
   .cabecera-nav {
-    gap: 0.9rem;
+    gap: 0.375rem;
+  }
+  .cabecera-nav a,
+  .cabecera-whatsapp {
+    min-height: 2.25rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
   }
   .logo img {
     height: 2.1rem;
@@ -1038,35 +1192,125 @@ body:has(.catalogo) {
   color: var(--oro-hondo);
 }
 
-.cabecera-coleccion .volver {
-  margin-bottom: 2rem;
+/* En la cabecera de la colección, «COLECCIÓN OTOÑO» en versalitas: deja claro que el
+   nombre grande de debajo es el de la colección. */
+.cabecera-coleccion .antetitulo,
+.ficha-info .antetitulo {
+  margin-bottom: 0.75rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-.datos-coleccion {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem 2.5rem;
-  margin: 0 0 2rem;
-  padding: 1.25rem 0;
+/* Descripción de la colección: debajo del nombre, en letra normal (el nombre ya va en cursiva). */
+.cabecera-coleccion-descripcion {
+  max-width: 30rem;
+  margin: 0 0 1.75rem;
+  color: var(--anil-suave);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+/* Ficha de datos (colección y prenda): etiqueta pequeña a la izquierda, valor a la derecha,
+   filas separadas por líneas finas. Es el único estilo de etiqueta del catálogo. */
+.ficha-datos {
+  margin: 0 0 1.75rem;
   border-top: 1px solid var(--linea);
+}
+
+.ficha-datos > div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.85rem 0;
   border-bottom: 1px solid var(--linea);
 }
 
-.datos-coleccion dt {
-  font: 0.8125rem/1.3 var(--letra-sans), system-ui, sans-serif;
+.etiqueta,
+.ficha-datos dt,
+.opciones legend {
+  font: 600 0.75rem/1.3 var(--letra-sans), system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--anil-suave);
 }
 
-.datos-coleccion dd {
-  margin: 0.2rem 0 0;
-  font: 500 1.125rem/1.3 var(--letra-sans), system-ui, sans-serif;
-  font-variant-numeric: tabular-nums;
+.ficha-datos dd {
+  margin: 0;
+  font: 500 1rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  color: var(--anil);
+}
+
+.ficha-datos dd a {
+  color: var(--oro-hondo);
+  text-decoration: none;
+}
+
+.ficha-datos dd a:hover {
+  text-decoration: underline;
 }
 
 .acciones-coleccion {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.625rem;
+}
+
+/* Botones más compactos en la cabecera, para que quepan uno al lado del otro. */
+.acciones-coleccion .boton {
+  min-height: 2.75rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.9375rem;
+}
+
+/* Nombre de la prenda sobre su foto: dice qué se está viendo y lleva a la prenda. */
+.foto-prenda {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  max-width: calc(100% - 1.5rem);
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.94);
+  color: var(--anil) !important;
+  font: 600 0.9375rem/1.2 var(--letra-sans), system-ui, sans-serif;
+  text-decoration: none;
+  box-shadow: 0 2px 10px rgb(31 42 68 / 0.12);
+}
+
+.foto-prenda::after {
+  content: "→";
+  color: var(--oro-hondo);
+}
+
+.foto-prenda:hover {
+  background: var(--blanco);
+}
+
+.foto-prenda-etiqueta {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--oro-hondo);
+}
+
+/* En la cabecera de la colección, la espiral pasa arriba para dejar abajo el nombre de la prenda. */
+.cabecera-coleccion-fotos .sello {
+  top: 0.75rem;
+  right: 0.75rem;
+  bottom: auto;
+  width: clamp(3rem, 5vw, 4.25rem);
+  padding: 0.6rem;
+}
+
+/* El menú marca en qué página se está. */
+.cabecera-nav a[aria-current="page"] {
+  background: #f5ecd7;
 }
 
 /* Botón de segundo nivel: mismo tamaño, sin relleno, para no competir con el principal. */
@@ -1087,4 +1331,17 @@ body:has(.catalogo) {
 
 #prendas {
   scroll-margin-top: 1rem;
+}
+
+/* Botones de la pantalla de error del catálogo (error.tsx), lado a lado y centrados. */
+.vacio-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.625rem;
+}
+
+.catalogo button.boton {
+  border: 0;
+  cursor: pointer;
 }

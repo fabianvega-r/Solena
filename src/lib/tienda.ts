@@ -36,12 +36,6 @@ export function nombreTemporada(temporada: string): string {
   return /^colecci[oó]n(\s|$)/i.test(t) ? conMayuscula : `Colección ${conMayuscula}`;
 }
 
-// Precio más bajo entre las prendas que lo tienen, para mostrar "desde $ …". null si ninguna tiene precio.
-export function precioDesde(prendas: { precio: number | null }[]): number | null {
-  const precios = prendas.map((p) => p.precio).filter((p): p is number => p != null);
-  return precios.length ? Math.min(...precios) : null;
-}
-
 const formatoPesos = new Intl.NumberFormat("es-CO", {
   style: "currency",
   currency: "COP",
