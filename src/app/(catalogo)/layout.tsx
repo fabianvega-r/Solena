@@ -1,6 +1,6 @@
 // Estructura del catálogo público: logo, contenido, pie con el contacto y el registro de visitas.
 import type { Metadata } from "next";
-import { Instrument_Sans, Newsreader } from "next/font/google";
+import { Cormorant, Instrument_Sans } from "next/font/google";
 import Link from "next/link";
 import { WHATSAPP_VISIBLE } from "@/lib/tienda";
 import { BarraAdmin } from "./_componentes/BarraAdmin";
@@ -9,11 +9,13 @@ import { MenuPrincipal } from "./_componentes/MenuPrincipal";
 import { EnlaceWhatsapp, RegistroVisita } from "./_componentes/Seguimiento";
 import "./catalogo.css";
 
-// Serif para nombres y descripciones (voz de revista); sans para precios, tallas y botones.
-const serif = Newsreader({
+// Cormorant (serif fina, de revista de moda) para títulos y textos de la marca; va bien con el
+// logo caligráfico. Instrument Sans para el texto corriente, precios, tallas y botones: Cormorant
+// es demasiado delgada para leerse en letra pequeña.
+const serif = Cormorant({
   subsets: ["latin"],
   style: ["normal", "italic"],
-  axes: ["opsz"],
+  weight: ["400", "500", "600"],
   variable: "--letra-serif",
   display: "swap",
 });
@@ -42,22 +44,44 @@ export default function LayoutCatalogo({ children }: { children: React.ReactNode
 
       <main id="contenido">{children}</main>
 
+      {/* Pie en tres columnas (una sola en el celular): la marca, a dónde ir y cómo escribir. */}
       <footer className="pie">
-        <Espiral className="pie-espiral" />
-        <div>
+        <div className="pie-columnas">
+          <div className="pie-marca">
+            <Link href="/" className="pie-logo">
+              <img src="/logo.png" alt="Solena, inicio" width={752} height={274} loading="lazy" />
+            </Link>
+            <p>Colecciones de ropa. Mira las prendas con calma y pregúntanos por WhatsApp.</p>
+          </div>
+          <nav className="pie-enlaces" aria-label="Pie de página">
+            <h2>Explora</h2>
+            <ul>
+              <li>
+                <Link href="/">Inicio</Link>
+              </li>
+              <li>
+                <Link href="/#colecciones">Colecciones</Link>
+              </li>
+              <li>
+                <Link href="/sobre-solena">Sobre Solena</Link>
+              </li>
+            </ul>
+          </nav>
+          <div className="pie-contacto">
+            <h2>Pedidos y preguntas</h2>
+            <p>Escríbenos por WhatsApp al {WHATSAPP_VISIBLE}.</p>
+            <EnlaceWhatsapp className="boton">Escribir por WhatsApp</EnlaceWhatsapp>
+          </div>
+        </div>
+        <div className="pie-final">
+          <Espiral className="pie-espiral" />
           <p>
-            Pedidos y preguntas por WhatsApp: <EnlaceWhatsapp>{WHATSAPP_VISIBLE}</EnlaceWhatsapp>
+            © {new Date().getFullYear()} Solena. Contamos las visitas de forma anónima, sin guardar datos
+            personales, para saber qué prendas gustan más.
           </p>
-          <p className="pie-nota">
-            Contamos las visitas de forma anónima, sin guardar datos personales, para saber qué prendas gustan más.
-          </p>
-          <p className="pie-nota">
-            <Link href="/sobre-solena">Sobre Solena</Link>
-            {" · "}
-            <a href="/admin" rel="nofollow">
-              Administrar la tienda
-            </a>
-          </p>
+          <a href="/admin" rel="nofollow">
+            Administrar la tienda
+          </a>
         </div>
       </footer>
 

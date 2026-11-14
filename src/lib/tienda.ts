@@ -29,6 +29,11 @@ export function ordenarTallas(tallas: string[]): string[] {
     .map(({ t }) => t);
 }
 
+// "Párrafo 1\n\nPárrafo 2" -> ["Párrafo 1", "Párrafo 2"]: cada uno se muestra como un <p>.
+export function parrafos(texto: string): string[] {
+  return texto.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+}
+
 // "otoño" -> "Colección Otoño". Si ya empieza por "Colección", se deja como está.
 export function nombreTemporada(temporada: string): string {
   const t = temporada.trim();

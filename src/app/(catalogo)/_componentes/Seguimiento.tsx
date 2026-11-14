@@ -18,15 +18,18 @@ export function RegistroVisita() {
 export function EnlaceWhatsapp({
   mensaje,
   className,
+  tabIndex,
   children,
 }: {
   mensaje?: string;
   className?: string;
+  tabIndex?: number; // -1 cuando el enlace está oculto (barra fija del celular)
   children: React.ReactNode;
 }) {
   return (
     <a
       className={className}
+      tabIndex={tabIndex}
       href={enlaceWhatsapp(mensaje)}
       target="_blank"
       rel="noreferrer"

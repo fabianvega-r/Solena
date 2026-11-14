@@ -45,10 +45,14 @@ const ETIQUETAS: Record<string, string> = {
   precio: "Precio",
   tallas: "Tallas",
   colores: "Colores",
+  inspiracion: "Inspiración",
+  materiales: "Materiales",
+  cuidados: "Cuidados",
+  medidasModelo: "Medidas de la modelo",
   coleccionId: "Colección",
   categoriaId: "Categoría",
   titulo: "Frase de presentación",
-  historia: "Cómo nació Solena",
+  historia: "La historia", // de la colección o de Solena: el mensaje sirve para ambos
   fundadoraNombre: "Nombre",
   fundadoraCargo: "Cargo",
   fundadoraTexto: "Sobre ella",
@@ -88,6 +92,9 @@ export async function guardarColeccion(id: string | null, _previo: Estado, form:
     slug: texto(form, "slug"),
     temporada: texto(form, "temporada"),
     descripcion: texto(form, "descripcion"),
+    historia: texto(form, "historia"),
+    inspiracion: texto(form, "inspiracion"),
+    materiales: texto(form, "materiales"),
     // `publicada` no se toca aquí: se cambia solo con cambiarPublicacion, que revisa que esté lista.
     fechaLanzamiento: texto(form, "fechaLanzamiento"),
   });
@@ -103,6 +110,10 @@ export async function guardarColeccion(id: string | null, _previo: Estado, form:
     slug,
     temporada: datos.data.temporada ?? null,
     descripcion: datos.data.descripcion ?? null,
+    // Vacío = se borra el texto (null), no «dejar como estaba».
+    historia: datos.data.historia ?? null,
+    inspiracion: datos.data.inspiracion ?? null,
+    materiales: datos.data.materiales ?? null,
     fechaLanzamiento: datos.data.fechaLanzamiento ?? null,
   };
 
@@ -165,6 +176,9 @@ export async function guardarPrenda(id: string | null, _previo: Estado, form: Fo
     precio: pesos(form, "precio"),
     tallas: lista(form, "tallas"),
     colores: limpiarColores(lista(form, "colores")),
+    materiales: texto(form, "materiales"),
+    cuidados: texto(form, "cuidados"),
+    medidasModelo: texto(form, "medidasModelo"),
     disponible: form.get("disponible") === "on",
     destacada: form.get("destacada") === "on",
     coleccionId: texto(form, "coleccionId"),
@@ -177,7 +191,14 @@ export async function guardarPrenda(id: string | null, _previo: Estado, form: Fo
   const otra = await db.prenda.findUnique({ where: { slug }, select: { id: true } });
   if (otra && otra.id !== id) return { error: `Ya existe otra prenda con la dirección «${slug}».` };
 
-  const data = { ...datos.data, slug, descripcion: datos.data.descripcion ?? null };
+  const data = {
+    ...datos.data,
+    slug,
+    descripcion: datos.data.descripcion ?? null,
+    materiales: datos.data.materiales ?? null,
+    cuidados: datos.data.cuidados ?? null,
+    medidasModelo: datos.data.medidasModelo ?? null,
+  };
 
   revalidatePath("/", "layout"); // panel y catálogo público
   if (id) {

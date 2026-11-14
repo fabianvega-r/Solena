@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { hayMarca, obtenerMarca } from "@/lib/marca";
+import { parrafos } from "@/lib/tienda";
 import { Espiral } from "../_componentes/Espiral";
 import { Imagen } from "../_componentes/Imagen";
 import { EnlaceWhatsapp } from "../_componentes/Seguimiento";
@@ -12,11 +13,6 @@ export const metadata: Metadata = {
   title: "Sobre Solena",
   description: "Cómo nació Solena y quién está detrás de cada colección.",
 };
-
-// "Párrafo 1\n\nPárrafo 2" -> ["Párrafo 1", "Párrafo 2"]: cada uno se muestra como un <p>.
-function parrafos(texto: string): string[] {
-  return texto.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-}
 
 export default async function SobreSolena() {
   const m = await obtenerMarca();
@@ -38,7 +34,9 @@ export default async function SobreSolena() {
 
   return (
     <>
+      {/* Mismo ritmo que el inicio: cabecera en arena → historia en blanco → fundadora en arena. */}
       <header className="sobre-cabecera">
+        <p className="seccion-antetitulo">Nuestra historia</p>
         <h1 className="titular">Sobre Solena</h1>
         {m.titulo && <p className="entrada">{m.titulo}</p>}
       </header>
@@ -66,7 +64,8 @@ export default async function SobreSolena() {
             </div>
           )}
           <div className="fundadora-texto">
-            <h2 id="titulo-fundadora">{m.fundadoraNombre ?? "Quién está detrás"}</h2>
+            <p className="seccion-antetitulo">Quién está detrás</p>
+            <h2 id="titulo-fundadora">{m.fundadoraNombre ?? "La fundadora"}</h2>
             {m.fundadoraCargo && <p className="cargo">{m.fundadoraCargo}</p>}
             {m.fundadoraTexto && (
               <div className="texto-largo">

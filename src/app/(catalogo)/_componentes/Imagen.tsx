@@ -9,12 +9,13 @@ type Props = {
   // Solo para la primera foto visible al abrir la página.
   prioridad?: boolean;
   alt?: string;
+  className?: string; // clase extra, p. ej. "foto-2" en la tarjeta
 };
 
-export function Imagen({ foto, sizes, prioridad = false, alt }: Props) {
+export function Imagen({ foto, sizes, prioridad = false, alt, className }: Props) {
   return (
     <img
-      className="imagen"
+      className={className ? `imagen ${className}` : "imagen"}
       src={foto.urls.md}
       srcSet={foto.srcSet}
       sizes={sizes}

@@ -60,6 +60,9 @@ export default async function EditarColeccion({ params }: { params: Promise<{ id
           slug: coleccion.slug,
           temporada: coleccion.temporada,
           descripcion: coleccion.descripcion,
+          historia: coleccion.historia,
+          inspiracion: coleccion.inspiracion,
+          materiales: coleccion.materiales,
           fechaLanzamiento: coleccion.fechaLanzamiento,
         }}
       />

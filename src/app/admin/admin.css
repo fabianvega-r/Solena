@@ -1123,6 +1123,28 @@ body:has(.admin) {
   box-shadow: none;
 }
 
+/* Bloque plegable de textos opcionales (historia de la colección, detalles de la prenda). */
+.opcional-editorial {
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--borde);
+  border-radius: var(--radio);
+}
+
+.opcional-editorial summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.opcional-editorial[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.opcional-editorial > .ayuda {
+  margin: 0;
+}
+
 /* --- Buscador, filtro por estado y paginación ----------------------------- */
 
 .buscador {

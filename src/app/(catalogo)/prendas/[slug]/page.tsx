@@ -53,33 +53,52 @@ export default async function PaginaPrenda({ params }: Props) {
         </div>
 
         <div className="ficha-info">
-          {/* A la vista solo «← Regresar»; el lector de pantalla dice a dónde lleva. */}
-          <Link
-            className="volver"
-            href={`/colecciones/${p.coleccion.slug}`}
-            aria-label={`Regresar a la colección ${p.coleccion.nombre}`}
-          >
-            Regresar
-          </Link>
-          {/* Igual que en la colección: primero qué es (de qué colección), luego el nombre. */}
-          <p className="antetitulo">Colección {p.coleccion.nombre}</p>
+          {/* Una sola línea dice dónde está la prenda y sirve para regresar: Inicio / Colección. */}
+          <nav className="ruta" aria-label="Estás en">
+            <Link href="/">Inicio</Link>
+            <span aria-hidden> / </span>
+            <Link href={`/colecciones/${p.coleccion.slug}`}>{p.coleccion.nombre}</Link>
+          </nav>
           <h1>{p.nombre}</h1>
-          {p.precio != null && <p className="precio grande">{precio(p.precio)}</p>}
-          {!p.disponible && <p className="aviso-agotada">Agotada por ahora.</p>}
+          <div className="ficha-precio">
+            {p.precio != null && <p className="precio grande">{precio(p.precio)}</p>}
+            {!p.disponible && <p className="aviso-agotada">Agotada por ahora</p>}
+          </div>
           {p.descripcion && <p className="descripcion">{p.descripcion}</p>}
           <SelectorCompra
             prendaId={p.id}
             nombre={p.nombre}
+            precio={p.precio != null ? precio(p.precio) : null}
+            medidasModelo={p.medidasModelo}
             tallas={ordenarTallas(p.tallas)}
             colores={p.colores}
             disponible={p.disponible}
           />
+
+          {/* Materiales y cuidados: plegados, para que la ficha no se alargue; se abren con un toque. */}
+          {(p.materiales || p.cuidados) && (
+            <div className="detalles">
+              {p.materiales && (
+                <details>
+                  <summary>Materiales</summary>
+                  <p>{p.materiales}</p>
+                </details>
+              )}
+              {p.cuidados && (
+                <details>
+                  <summary>Cuidados</summary>
+                  <p>{p.cuidados}</p>
+                </details>
+              )}
+            </div>
+          )}
         </div>
       </article>
 
       {p.otras.length > 0 && (
-        <section className="otras" aria-labelledby="titulo-otras">
-          <h2 id="titulo-otras">Más de {p.coleccion.nombre}</h2>
+        <section className="otras aparece" aria-labelledby="titulo-otras">
+          <p className="seccion-antetitulo">De la misma colección</p>
+          <h2 id="titulo-otras">Completa el look</h2>
           <ul className="rejilla-prendas">
             {p.otras.map((o) => (
               <li key={o.id}>

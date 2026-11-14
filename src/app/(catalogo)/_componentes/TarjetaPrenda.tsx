@@ -10,14 +10,18 @@ import { Imagen } from "./Imagen";
 // Ancho de cada tarjeta en la rejilla: 2 columnas en celular, 3 en tableta, 4 en computador.
 export const TAMANOS_REJILLA = "(min-width: 1100px) 25vw, (min-width: 700px) 33vw, 50vw";
 
-export type DatosTarjeta = Pick<PrendaResumen, "id" | "slug" | "nombre" | "disponible" | "foto">;
+export type DatosTarjeta = Pick<PrendaResumen, "id" | "slug" | "nombre" | "disponible" | "foto" | "foto2">;
 
 export function TarjetaPrenda({ prenda, sizes }: { prenda: DatosTarjeta; sizes: string }) {
   return (
     <article className={`tarjeta-prenda${prenda.disponible ? "" : " agotada"}`}>
       <div className="tarjeta-foto">
         {prenda.foto ? (
-          <Imagen foto={prenda.foto} sizes={sizes} alt="" />
+          <>
+            <Imagen foto={prenda.foto} sizes={sizes} alt="" />
+            {/* Segunda foto: aparece al pasar el mouse (ver .foto-2 en catalogo.css). */}
+            {prenda.foto2 && <Imagen foto={prenda.foto2} sizes={sizes} alt="" className="foto-2" />}
+          </>
         ) : (
           <div className="sin-foto">
             <Espiral />

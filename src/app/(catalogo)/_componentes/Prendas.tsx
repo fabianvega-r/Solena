@@ -19,10 +19,14 @@ export function Prendas({ prendas }: { prendas: PrendaResumen[] }) {
 
   return (
     <section className="prendas" id="prendas" aria-labelledby="titulo-prendas">
+      {/* Misma estructura que las secciones del inicio: antetítulo, título y, a la derecha, el conteo. */}
       <div className="prendas-cabecera">
-        <h2 id="titulo-prendas">Prendas de la colección</h2>
+        <div>
+          <p className="seccion-antetitulo">La colección</p>
+          <h2 id="titulo-prendas">Prendas</h2>
+        </div>
         <p className="conteo" aria-live="polite">
-          {cuantas(visibles.length)}
+          {filtro ? `${cuantas(visibles.length)} de ${prendas.length}` : cuantas(visibles.length)}
         </p>
       </div>
 

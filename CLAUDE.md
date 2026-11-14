@@ -47,7 +47,9 @@ Otros comandos: `npm run db:migrate` (crear una migración tras cambiar `prisma/
 - [x] Panel de administración con flujo guiado de publicación.
 - [~] Etapa 2: **catálogo público**. Hecho: inicio, colección, ficha de prenda, WhatsApp con mensaje prellenado
   (`src/lib/tienda.ts`), corazones y métricas anónimas (`src/lib/metricas.ts`, panel `/admin/metricas`), enlace
-  «Administrar la tienda» y barra de sesión. Falta: rediseño de la presentación (ver abajo) y las mejoras de la investigación.
+  «Administrar la tienda» y barra de sesión. Rediseño editorial hecho (Cormorant + Instrument Sans, escala única
+  `--t-*` y `--espacio-seccion` en `catalogo.css`; precio solo en la ficha; sin carrito ni buscador, se vende por
+  WhatsApp). Falta: las mejoras de la investigación que siguen abiertas (ver abajo).
 - [ ] Etapa 3: Cloudflare R2 + Vercel (pasos en el README, *Despliegue gratuito*).
 
 ### Plan de mejoras (investigación: `reports/Páginas de moda para Solena.md`)
@@ -58,15 +60,17 @@ Prioridad alta:
    paginación en el panel; tallas ordenadas con `ordenarTallas`).
 2. Confirmación clara al guardar cambios de prendas y colecciones existentes (la creación ya está guiada).
 3. Guía de tallas en cm junto al selector de talla.
-4. Medidas de la modelo («La modelo mide 1,70 y usa talla S») y campos de tela y cuidado en cada prenda.
-5. Botón de WhatsApp fijo abajo en el celular, en la ficha de prenda.
+4. ~~Medidas de la modelo y campos de tela y cuidado en cada prenda~~ (hecho, más historia/inspiración/materiales
+   de la colección).
+5. ~~Botón de WhatsApp fijo abajo en el celular, en la ficha de prenda~~ (hecho, `SelectorCompra.tsx`).
 6. Sección «Cómo comprar»: envíos, pagos, cambios y horario de respuesta (la gente pide pruebas de que el negocio es real).
 7. Guiar al usuario para configurar WhatsApp Business (bienvenida, ausencia, respuestas rápidas, etiquetas).
 
 Prioridad media: página de privacidad y cookies (Ley 1581); «Mis favoritos» con envío por WhatsApp; «Avísame cuando
 vuelva» en prendas agotadas; historia de la marca; en métricas, cruzar corazones con toques de WhatsApp.
 
-Prioridad baja: enlace a Instagram, segunda foto al pasar el cursor, aviso honesto de última unidad, filtro por talla.
+Prioridad baja: enlace a Instagram, ~~segunda foto al pasar el cursor~~ (hecho), aviso honesto de última unidad,
+filtro por talla.
 No hacer por ahora: contador público de corazones, recomendador de talla, buscador.
 
 Pendientes: preguntar si borrar las fotos de campaña duplicadas de «holas del mar» y «Lo que permanece en nosotros»

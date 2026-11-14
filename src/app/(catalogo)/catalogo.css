@@ -1,13 +1,19 @@
 /* Catálogo público de Solena. Parte del logo: dorado sobre blanco, con la espiral de la «o»
    como único motivo. La ropa manda; todo lo demás se mantiene sobrio. */
 
-.catalogo {
+/* El fondo de la página va en :root porque <body> queda por fuera de .catalogo. */
+:root {
   --cal: #fbfbf9; /* fondo: blanco limpio para que la ropa se vea con su color real */
+}
+
+.catalogo {
   --blanco: #ffffff;
   --anil: #1f2a44; /* texto: azul muy oscuro en vez de negro */
   --anil-suave: #586079;
   --oro: #ac8129; /* el dorado del logo: espiral, corazón */
   --oro-hondo: #86661c; /* dorado más oscuro para botones y enlaces (contraste legible) */
+  --oro-oscuro: #6e5416; /* botón dorado al pasar el mouse */
+  --oro-tenue: #f5ecd7; /* dorado muy claro: lo elegido y el fondo al pasar el mouse */
   --arena: #efeae0; /* fondo mientras cargan las fotos */
   --linea: #e3e0d8;
   --error: #9b2c1f;
@@ -15,20 +21,83 @@
   --radio-foto: 14px; /* esquinas suaves en todas las fotos */
   --alto-cabecera: 5rem; /* alto aproximado de la cabecera fija (logo + menú) */
 
+  /* Escala de letra: solo estos tamaños en todo el catálogo, para que se vea ordenado.
+     Los títulos van en Cormorant (serif de moda); todo lo demás en Instrument Sans. */
+  --t-mini: 0.75rem; /* 12 px: antetítulos en versalitas, etiquetas */
+  --t-chico: 0.875rem; /* 14 px: notas, ayudas, datos secundarios */
+  --t-base: 1rem; /* 16 px: texto corriente, botones */
+  --t-entrada: 1.125rem; /* 18 px: descripciones y textos de la marca (serif) */
+  --t-tarjeta: clamp(1.25rem, 1.8vw, 1.5rem); /* 20-24 px: nombre de prenda en una tarjeta */
+  --t-h3: clamp(1.5rem, 2.2vw, 2rem); /* 24-32 px: nombre de colección en una tarjeta */
+  --t-h2: clamp(2rem, 3.2vw, 3rem); /* 32-48 px (40-48 en computador): título de sección */
+  --t-h1: clamp(2.5rem, 4.6vw, 4.5rem); /* 40-72 px (56-72 en computador): título principal */
+
+  /* Espacio vertical de cada sección, arriba y abajo: entre dos secciones nunca más de 120 px. */
+  --espacio-seccion: clamp(2.5rem, 5vw, 3.75rem);
+
+  /* Fondos de sección: alternarlos da ritmo a la página. */
+  --fondo-arena: #f4efe5;
+  --fondo-noche: #1f2a44;
+  --oro-claro: #d9b76a; /* dorado sobre fondo oscuro (contraste legible) */
+  --oro-claro-hover: #e6c983;
+  --texto-noche: #eef0f5; /* texto sobre la franja oscura */
+  --texto-noche-suave: #c4c9d6;
+
+  /* Movimiento: dos velocidades para todas las transiciones. */
+  --rapido: 150ms;
+  --suave: 250ms;
+
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--cal);
   color: var(--anil);
-  font-family: var(--letra-serif), Georgia, serif;
-  font-size: 1.0625rem;
+  font-family: var(--letra-sans), system-ui, sans-serif;
+  font-size: var(--t-base);
   line-height: 1.6;
-  font-optical-sizing: auto;
+}
+
+/* Cormorant: títulos y textos con voz de marca. Peso 500, porque la 400 es muy delgada. */
+.catalogo h1,
+.catalogo h2,
+.catalogo h3,
+.titular,
+.entrada,
+.historia,
+.descripcion,
+.texto-largo,
+.cabecera-coleccion-descripcion,
+.portada-descripcion,
+.sobre-cierre {
+  font-family: var(--letra-serif), Georgia, serif;
+  font-weight: 500;
+}
+
+.entrada,
+.historia,
+.descripcion,
+.texto-largo,
+.cabecera-coleccion-descripcion,
+.portada-descripcion {
+  font-size: var(--t-entrada);
+  line-height: 1.5;
+}
+
+/* Antetítulo («EXPLORA», «COLECCIÓN OTOÑO»), ruta y etiquetas: un solo estilo en todo el catálogo. */
+.seccion-antetitulo,
+.portada-antetitulo,
+.antetitulo,
+.ruta {
+  margin: 0 0 0.75rem;
+  font: 600 var(--t-mini)/1.4 var(--letra-sans), system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--oro-hondo);
 }
 
 body:has(.catalogo) {
   margin: 0;
-  background: #fbfbf9;
+  background: var(--cal);
 }
 
 .catalogo *,
@@ -54,7 +123,6 @@ body:has(.catalogo) {
 .catalogo h1,
 .catalogo h2,
 .catalogo h3 {
-  font-weight: 400;
   text-wrap: balance;
 }
 
@@ -85,16 +153,17 @@ body:has(.catalogo) {
   justify-content: center;
   min-height: 3rem;
   padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
   border-radius: 999px;
   background: var(--oro-hondo);
   color: var(--blanco) !important;
-  font: 600 1rem/1.2 var(--letra-sans), system-ui, sans-serif;
+  font: 600 var(--t-base)/1.2 var(--letra-sans), system-ui, sans-serif;
   text-decoration: none;
-  transition: background-color 0.15s;
+  transition: background-color var(--rapido);
 }
 
 .catalogo .boton:hover {
-  background: #6e5416;
+  background: var(--oro-oscuro);
 }
 
 .imagen {
@@ -120,34 +189,20 @@ body:has(.catalogo) {
   width: 28%;
 }
 
-.temporada,
-.catalogo .volver,
 .conteo,
 .precio,
 .pista {
   font-family: var(--letra-sans), system-ui, sans-serif;
-  font-size: 0.9375rem;
+  font-size: var(--t-chico);
   color: var(--anil-suave);
 }
 
-.temporada {
-  margin: 0;
-}
-
-/* «Volver al inicio»: botón dorado (ver .cabecera-nav a), con una flecha delante. */
-.catalogo .volver::before {
-  content: "←";
-}
-
-.ficha-info .volver {
-  margin-bottom: 1.5rem;
-}
-
-/* Nombre de colección: grande pero legible. Las palabras nunca se parten por la mitad. */
+/* Nombre de colección: grande pero legible. Las palabras nunca se parten por la mitad.
+   Los títulos van en azul noche; el dorado se reserva para detalles y botones. */
 .titular {
   margin: 0.25rem 0 0.75rem;
-  color: var(--oro); /* el dorado del logo, igual que el nombre de cada prenda */
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  color: var(--anil);
+  font-size: var(--t-h1);
   font-style: italic;
   line-height: 1;
   letter-spacing: -0.015em;
@@ -157,8 +212,6 @@ body:has(.catalogo) {
 .entrada {
   max-width: 34rem;
   margin: 0 0 2rem;
-  font-size: 1.1875rem;
-  line-height: 1.55;
   white-space: pre-line;
 }
 
@@ -236,7 +289,6 @@ html:has(.catalogo) {
    «Escríbenos» (WhatsApp) va relleno porque es la acción principal. */
 .cabecera-nav a,
 .cabecera-whatsapp,
-.catalogo .volver,
 .ver-todo {
   display: inline-flex;
   align-items: center;
@@ -247,18 +299,17 @@ html:has(.catalogo) {
   border-radius: 999px;
   background: var(--blanco);
   color: var(--oro-hondo) !important;
-  font: 600 0.9375rem/1 var(--letra-sans), system-ui, sans-serif;
+  font: 600 var(--t-chico)/1 var(--letra-sans), system-ui, sans-serif;
   text-decoration: none;
   white-space: nowrap;
   transition:
-    background-color 0.15s,
-    color 0.15s;
+    background-color var(--rapido),
+    color var(--rapido);
 }
 
 .cabecera-nav a:hover,
-.catalogo .volver:hover,
 .ver-todo:hover {
-  background: #f5ecd7; /* dorado muy claro */
+  background: var(--oro-tenue);
 }
 
 .cabecera-whatsapp {
@@ -268,66 +319,391 @@ html:has(.catalogo) {
 }
 
 .cabecera-whatsapp:hover {
-  background: #6e5416;
+  background: var(--oro-oscuro);
 }
 
+/* Pie: fondo arena, tres columnas en computador (marca · Explora · contacto) y una franja final. */
 .pie {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  margin-top: 4rem;
-  padding: 2rem var(--margen) 2.5rem;
-  border-top: 1px solid var(--linea);
-  font: 0.9375rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  margin-top: 0;
+  padding: var(--espacio-seccion) var(--margen) 1.5rem;
+  background: var(--fondo-arena);
+  font-size: var(--t-chico);
+  color: var(--anil-suave);
+}
+
+.pie-columnas {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.pie h2 {
+  margin: 0 0 0.9rem;
+  font: 600 var(--t-mini)/1.4 var(--letra-sans), system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--anil);
 }
 
 .pie p {
-  margin: 0 0 0.5rem;
+  max-width: 22rem;
+  margin: 0 0 1rem;
+}
+
+.pie-logo img {
+  display: block;
+  width: auto;
+  height: 3rem;
+  margin-bottom: 1rem;
+}
+
+.pie-enlaces ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pie-enlaces a {
+  color: var(--anil);
+  text-decoration: none;
+  font-size: var(--t-base);
+}
+
+.pie-enlaces a:hover {
+  color: var(--oro-hondo);
+  text-decoration: underline;
+}
+
+.pie-final {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--linea);
+  font-size: var(--t-mini);
+}
+
+.pie-final p {
+  flex: 1 1 20rem;
+  max-width: none;
+  margin: 0;
+}
+
+.pie-final a {
+  color: var(--anil-suave);
 }
 
 .pie-espiral {
   flex: none;
-  width: 2rem;
+  width: 1.75rem;
   color: var(--oro);
 }
 
-.pie-nota {
-  max-width: 36rem;
-  font-size: 0.8125rem;
-  color: var(--anil-suave);
+@media (min-width: 800px) {
+  .pie-columnas {
+    grid-template-columns: 2fr 1fr 1.5fr;
+  }
 }
 
 /* --- Inicio ---------------------------------------------------------------------- */
 
-/* Todas las colecciones a la vista al entrar, con una presentación corta. */
-.inicio-colecciones {
-  padding: 1rem var(--margen) 0;
+/* Portada: la foto se ve COMPLETA. Su recuadro toma la proporción real de la foto (--proporcion,
+   que pone page.tsx con el ancho y alto guardados), sea vertical u horizontal.
+   En el celular: foto arriba a todo el ancho y texto debajo. En computador: texto a la izquierda,
+   foto a la derecha con el alto de la pantalla; el texto se queda con el ancho que sobra. */
+.portada {
+  display: grid;
+  background: var(--fondo-arena);
 }
 
-.inicio-intro h1 {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.1;
+/* La foto nunca pasa del 70 % del alto de la pantalla y conserva su forma: si es muy alargada,
+   se angosta (ancho = 70 % del alto × proporción) y queda centrada, en vez de cortarse. */
+.portada-foto {
+  position: relative;
+  width: min(100%, calc(70svh * var(--proporcion, 4 / 5)));
+  margin-inline: auto;
+  aspect-ratio: var(--proporcion, 4 / 5);
+  overflow: hidden;
+  background: var(--arena);
 }
 
-/* Centrada, igual que el tren de colecciones de debajo. */
-.inicio-intro p {
-  max-width: 40rem;
-  margin: 0 auto;
-  text-align: center;
-  font: 1rem/1.5 var(--letra-sans), system-ui, sans-serif;
+.portada-foto .imagen,
+.portada-foto .sin-foto {
+  position: absolute;
+  inset: 0;
+}
+
+.portada-foto .imagen {
+  object-position: center top; /* si algo se recorta, que sea abajo, no la cabeza */
+}
+
+.portada-foto .sello {
+  top: 1rem;
+  bottom: auto;
+}
+
+.portada-texto {
+  padding: 1.75rem var(--margen) 2.25rem;
+}
+
+/* El nombre de la colección es el protagonista: partido en 2 o 3 líneas, como en una revista
+   (max-width en «ch» = ancho de unas 11 letras). */
+.catalogo .portada-titulo {
+  max-width: 11ch;
+  margin: 0 0 1rem;
+  font-size: var(--t-h1);
+  font-style: italic;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+
+.portada-descripcion {
+  display: -webkit-box;
+  max-width: 32rem;
+  margin: 0 0 1.75rem;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  white-space: pre-line;
+}
+
+.portada-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.portada .boton.secundario:hover {
+  background: var(--blanco);
+}
+
+.portada-dato {
+  margin: 1.25rem 0 0;
+  font-size: var(--t-chico);
   color: var(--anil-suave);
 }
 
-.etiqueta-nueva {
+@media (min-width: 900px) {
+  /* Texto (máx. 32rem) y foto forman un solo bloque centrado, de 70 % del alto como máximo:
+     sin columnas a medio llenar. Con una foto horizontal, la foto crece hasta el 60 % del ancho. */
+  .portada {
+    grid-template-columns: minmax(0, 32rem) auto;
+    justify-content: center;
+    align-items: center;
+    column-gap: clamp(2.5rem, 5vw, 5rem);
+    padding: 2rem var(--margen);
+  }
+
+  .portada-foto {
+    grid-area: 1 / 2;
+    width: auto;
+    height: min(70vh, 46rem);
+    max-width: 60vw;
+    margin: 0;
+    border-radius: var(--radio-foto);
+  }
+
+  .portada-texto {
+    grid-area: 1 / 1;
+    padding: 0;
+  }
+}
+
+/* --- «Más colecciones» en filas: foto grande y texto al lado, alternando lados --------- */
+
+.colecciones-filas {
+  display: grid;
+  gap: var(--espacio-seccion);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.coleccion-fila {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.coleccion-fila-foto {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  max-height: 60vh;
+  overflow: hidden;
+  border-radius: var(--radio-foto);
+  background: var(--arena);
+}
+
+.coleccion-fila-foto .imagen,
+.coleccion-fila-foto .sin-foto {
+  position: absolute;
+  inset: 0;
+}
+
+.coleccion-fila h3 {
+  margin: 0 0 1rem;
+  font-size: var(--t-h2);
+  font-style: italic;
+  line-height: 1;
+}
+
+.coleccion-fila-descripcion {
+  display: -webkit-box;
+  max-width: 32rem;
+  margin: 0 0 1.5rem;
+  overflow: hidden;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  font: 500 var(--t-entrada)/1.5 var(--letra-serif), Georgia, serif;
+  color: var(--anil-suave);
+}
+
+/* Vista previa: hasta 3 prendas en miniatura con su nombre, para entrar directo a una. */
+.vista-previa {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  max-width: 30rem;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.vista-previa a {
+  display: block;
+  color: var(--anil) !important;
+  text-decoration: none;
+}
+
+.vista-previa-foto {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: calc(var(--radio-foto) * 0.6);
+  background: var(--arena);
+}
+
+.vista-previa-foto .imagen {
+  position: absolute;
+  inset: 0;
+}
+
+.vista-previa-nombre {
+  display: block;
+  margin-top: 0.4rem;
+  overflow: hidden;
+  font-size: var(--t-chico);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vista-previa a:hover .vista-previa-nombre {
+  color: var(--oro-hondo);
+}
+
+.coleccion-fila-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+.coleccion-fila-acciones .coleccion-dato {
+  margin: 0;
+}
+
+/* «Prendas destacadas»: tarjetas grandes; con 1 o 2 prendas no quedan columnas vacías. */
+.rejilla-destacadas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rejilla-destacadas.cantidad-1 {
+  grid-template-columns: minmax(0, 24rem);
+}
+
+@media (min-width: 900px) {
+  .rejilla-destacadas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem 1.5rem;
+  }
+
+  .rejilla-destacadas.cantidad-2 {
+    grid-template-columns: repeat(2, minmax(0, 26rem));
+  }
+
+  .rejilla-destacadas.cantidad-1 {
+    grid-template-columns: minmax(0, 26rem);
+  }
+
+  /* Pocas prendas: título a la izquierda, tarjetas a la derecha, todo en una fila. */
+  .destacadas-pocas {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  .destacadas-pocas .seccion-cabecera {
+    margin: 0;
+  }
+}
+
+@media (min-width: 800px) {
+  .coleccion-fila {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  /* Una fila sí y otra no, la foto pasa a la derecha. */
+  .coleccion-fila:nth-child(even) .coleccion-fila-foto {
+    order: 2;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .coleccion-fila-foto .imagen {
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .coleccion-fila:hover .coleccion-fila-foto .imagen {
+    transform: scale(1.03);
+  }
+}
+
+/* «Más colecciones»: fondo claro, para separarse de la portada (arena) y del pie (arena). */
+.inicio-colecciones {
+  padding: var(--espacio-seccion) var(--margen);
+  background: var(--cal);
+}
+
+/* Etiquetas sobre las fotos («Nueva», «Agotada»): una sola forma, píldora blanca en versalitas. */
+.etiqueta-nueva,
+.etiqueta-agotada {
   position: absolute;
   top: 0.6rem;
   left: 0.6rem;
-  padding: 0.25rem 0.65rem;
+  z-index: 1;
+  padding: 0.3rem 0.7rem;
   border-radius: 999px;
   background: var(--blanco);
   color: var(--oro-hondo);
-  font: 600 0.8125rem/1.3 var(--letra-sans), system-ui, sans-serif;
+  font: 600 var(--t-mini)/1.3 var(--letra-sans), system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.etiqueta-agotada {
+  color: var(--anil);
 }
 
 /* El sello: la espiral del logo en su círculo blanco, sobre la esquina de la portada. */
@@ -354,25 +730,35 @@ html:has(.catalogo) {
   }
 }
 
-/* Secciones bajo la portada: prendas de la colección, más colecciones. */
+/* Secciones bajo la portada: antetítulo pequeño, título grande y, a la derecha, «Ver todas». */
 .seccion-inicio {
-  padding: 4rem var(--margen) 0;
+  padding: var(--espacio-seccion) var(--margen);
 }
 
 .seccion-cabecera {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 0.5rem 1rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--linea);
+  gap: 1rem;
+  margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
 }
 
 .seccion-cabecera h2 {
   margin: 0;
-  font-size: 1.75rem;
-  line-height: 1.2;
+  font-size: var(--t-h2);
+  line-height: 1.05;
+}
+
+.seccion-cabecera.centrada {
+  justify-content: center;
+  text-align: center;
+}
+
+.seccion-ayuda {
+  max-width: 34rem;
+  margin: 0.75rem auto 0;
+  color: var(--anil-suave);
 }
 
 .ver-todo::after {
@@ -426,9 +812,6 @@ html:has(.catalogo) {
   margin-right: clamp(0.75rem, 1.5vw, 1.25rem);
 }
 
-.tren .tarjeta-coleccion h2 {
-  font-size: clamp(1.25rem, 2vw, 1.625rem);
-}
 
 /* En pantallas táctiles (celular, tableta) el tren no se mueve solo: con el dedo no hay cómo
    pausarlo, así que la persona lo desliza de lado a su ritmo. Igual si pidió menos movimiento. */
@@ -456,68 +839,85 @@ html:has(.catalogo) {
   inset: 0;
 }
 
-.tarjeta-coleccion h2 {
-  margin: 0.75rem 0 0.125rem;
-  font-size: clamp(1.375rem, 3vw, 2rem);
+.tarjeta-coleccion h3 {
+  margin: 0.9rem 0 0.25rem;
+  font-size: var(--t-h3);
   font-style: italic;
-  line-height: 1.05;
+  line-height: 1.1;
 }
 
-.tarjeta-coleccion h2 a {
-  color: inherit;
+.tarjeta-coleccion h3 a {
+  color: var(--anil);
   text-decoration: none;
 }
 
 /* Toda la tarjeta lleva a la colección. */
-.tarjeta-coleccion h2 a::after {
+.tarjeta-coleccion h3 a::after {
   content: "";
   position: absolute;
   inset: 0;
 }
 
-.tarjeta-coleccion:hover h2 a {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
+.tarjeta-coleccion:hover h3 a {
+  color: var(--oro-hondo);
 }
 
 .tarjeta-coleccion p {
   margin: 0;
-  font: 0.9375rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  font-size: var(--t-chico);
   color: var(--anil-suave);
 }
 
-/* «Sobre la marca»: una franja blanca que separa la historia del resto del catálogo. */
+/* «Sobre la marca»: franja azul noche, la única oscura del catálogo, para cerrar con la historia. */
 .sobre-marca {
   display: grid;
-  gap: 2rem;
-  margin-top: 5rem;
-  padding: 3rem var(--margen);
-  background: var(--blanco);
+  gap: 2.5rem;
+  padding: var(--espacio-seccion) var(--margen);
+  background: var(--fondo-noche);
+  color: var(--texto-noche);
+}
+
+.sobre-marca .seccion-antetitulo {
+  color: var(--oro-claro);
 }
 
 .sobre-marca h2 {
-  margin: 0 0 1rem;
-  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  margin: 0 0 1.25rem;
+  color: var(--blanco);
+  font-size: var(--t-h2);
   font-style: italic;
   line-height: 1.05;
 }
 
+.sobre-marca .cargo {
+  color: var(--texto-noche-suave);
+}
+
+/* Sobre el fondo oscuro, el botón va en dorado claro con texto oscuro. */
+.sobre-marca .boton {
+  background: var(--oro-claro);
+  color: var(--fondo-noche) !important;
+}
+
+.sobre-marca .boton:hover {
+  background: var(--oro-claro-hover);
+}
+
 .historia {
   max-width: 36rem;
-  margin: 0 0 2rem;
-  font-size: 1.125rem;
-  line-height: 1.65;
+  margin: 0 0 1.5rem;
   white-space: pre-line;
 }
 
 /* --- Colección ----------------------------------------------------------------- */
 
-/* En el celular, las fotos van primero y el texto debajo; en computador, el texto es una
-   columna angosta y las fotos ocupan el resto. */
+/* Portada de la colección, en arena como la del inicio. En el celular, las fotos van primero y
+   el texto debajo; en computador, el texto es una columna angosta y las fotos ocupan el resto. */
 .cabecera-coleccion {
   display: grid;
   gap: 1.5rem;
-  padding: 0.25rem 0 2rem;
+  padding: 1.25rem 0 2.5rem;
+  background: var(--fondo-arena);
 }
 
 .cabecera-coleccion-texto {
@@ -557,22 +957,28 @@ html:has(.catalogo) {
 }
 
 .prendas {
-  padding: 0 var(--margen);
+  padding: var(--espacio-seccion) var(--margen);
 }
 
+/* Igual que .seccion-cabecera del inicio: antetítulo, título grande y, a la derecha, el conteo. */
 .prendas-cabecera {
   display: flex;
-  align-items: baseline;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 1rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--linea);
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
 }
 
 .prendas-cabecera h2,
 .otras h2 {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: var(--t-h2);
+  line-height: 1.05;
+}
+
+.otras h2 {
+  margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
 }
 
 .conteo {
@@ -586,6 +992,7 @@ html:has(.catalogo) {
   margin-top: 1rem;
 }
 
+/* Botones de filtro y opciones de talla/color: misma píldora y mismo estado «elegido». */
 .filtros button {
   min-height: 2.75rem;
   padding: 0.5rem 1.1rem;
@@ -593,14 +1000,22 @@ html:has(.catalogo) {
   border-radius: 999px;
   background: var(--blanco);
   color: var(--anil);
-  font: 0.9375rem/1 var(--letra-sans), system-ui, sans-serif;
+  font: var(--t-chico)/1 var(--letra-sans), system-ui, sans-serif;
   cursor: pointer;
+  transition: background-color var(--rapido);
 }
 
-.filtros button[aria-pressed="true"] {
-  background: var(--anil);
-  border-color: var(--anil);
-  color: var(--blanco);
+.filtros button:hover {
+  background: var(--oro-tenue);
+}
+
+.filtros button[aria-pressed="true"],
+.opciones input:checked + span {
+  background: var(--oro-tenue);
+  border-color: var(--oro-hondo);
+  box-shadow: inset 0 0 0 1px var(--oro-hondo);
+  color: var(--anil);
+  font-weight: 600;
 }
 
 /* --- Rejilla de prendas ------------------------------------------------------ */
@@ -641,15 +1056,35 @@ html:has(.catalogo) {
   inset: 0;
 }
 
+/* Segunda foto: encima de la primera, invisible; aparece al pasar el mouse (solo en computador).
+   En pantallas táctiles no se muestra ni se descarga. */
+.tarjeta-foto .foto-2 {
+  opacity: 0;
+  transition: opacity var(--suave) ease;
+}
+
+@media (hover: hover) {
+  .tarjeta-prenda:hover .foto-2 {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .tarjeta-foto .foto-2 {
+    display: none;
+  }
+}
+
 .tarjeta-prenda h3 {
-  margin: 0.625rem 0 0.125rem;
-  font-size: 1.0625rem;
-  line-height: 1.3;
+  margin: 0.75rem 0 0;
+  font-size: var(--t-tarjeta);
+  line-height: 1.2;
 }
 
 .tarjeta-prenda h3 a {
-  color: inherit;
+  color: var(--anil);
   text-decoration: none;
+  transition: color var(--rapido);
 }
 
 /* Toda la tarjeta lleva a la prenda; el corazón queda por encima. */
@@ -660,8 +1095,7 @@ html:has(.catalogo) {
 }
 
 .tarjeta-prenda:hover h3 a {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
+  color: var(--oro-hondo);
 }
 
 .precio {
@@ -671,15 +1105,6 @@ html:has(.catalogo) {
 
 .agotada .imagen {
   opacity: 0.55;
-}
-
-.etiqueta-agotada {
-  position: absolute;
-  left: 0.5rem;
-  bottom: 0.5rem;
-  padding: 0.25rem 0.6rem;
-  background: var(--blanco);
-  font: 0.8125rem/1.3 var(--letra-sans), system-ui, sans-serif;
 }
 
 /* --- Corazón -------------------------------------------------------------------- */
@@ -737,13 +1162,13 @@ html:has(.catalogo) {
   border: 1px solid var(--linea);
   border-radius: 999px;
   background: var(--blanco);
-  font: 500 1rem/1 var(--letra-sans), system-ui, sans-serif;
+  font: 500 var(--t-base)/1 var(--letra-sans), system-ui, sans-serif;
 }
 
 .corazon-error {
   display: block;
   margin-top: 0.25rem;
-  font: 0.8125rem/1.4 var(--letra-sans), system-ui, sans-serif;
+  font: var(--t-mini)/1.4 var(--letra-sans), system-ui, sans-serif;
   color: var(--error);
 }
 
@@ -774,34 +1199,63 @@ html:has(.catalogo) {
 .pista {
   margin: 0;
   padding: 0.5rem var(--margen) 0;
-  font-size: 0.875rem;
 }
 
 .ficha-info {
   padding: 1.5rem var(--margen) 0;
 }
 
-/* Nombre de la prenda en el dorado del logo (en letra grande se lee bien). */
+/* Nombre de la prenda: el título más grande de la ficha, en azul noche. El dorado queda para
+   los detalles (ruta, botones, espiral), así la página no compite consigo misma. */
 .ficha-info h1 {
-  margin: 0 0 0.75rem;
-  color: var(--oro);
-  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
-  line-height: 1.05;
+  margin: 0 0 1rem;
+  color: var(--anil);
+  font-size: var(--t-h2);
+  font-style: italic;
+  line-height: 1.02;
   letter-spacing: -0.01em;
 }
 
+/* Ruta «Inicio / Colección»: reemplaza el botón «Regresar» y el antetítulo repetido. */
+.ruta a {
+  color: var(--oro-hondo);
+  text-decoration: none;
+}
+
+.ruta a:hover {
+  text-decoration: underline;
+}
+
+.ruta span {
+  color: var(--anil-suave);
+}
+
+/* Precio y estado en una fila, con una línea fina debajo que separa la descripción. */
+.ficha-precio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--linea);
+}
+
+.ficha-precio:empty {
+  display: none;
+}
+
 .precio.grande {
-  font-size: 1.25rem;
-  font-weight: 500;
+  font-size: var(--t-entrada);
+  font-weight: 600;
   color: var(--anil);
 }
 
 .aviso-agotada {
-  display: inline-block;
-  margin: 1rem 0 0;
-  padding: 0.4rem 0.75rem;
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
   background: var(--arena);
-  font: 0.9375rem/1.4 var(--letra-sans), system-ui, sans-serif;
+  font: 600 var(--t-chico)/1.4 var(--letra-sans), system-ui, sans-serif;
 }
 
 .descripcion {
@@ -819,7 +1273,6 @@ html:has(.catalogo) {
 .opciones legend {
   margin-bottom: 0.5rem;
   padding: 0;
-  font: 600 0.9375rem/1.4 var(--letra-sans), system-ui, sans-serif;
 }
 
 .opciones div {
@@ -848,19 +1301,13 @@ html:has(.catalogo) {
   border: 1px solid var(--linea);
   border-radius: 999px;
   background: var(--blanco);
-  font: 0.9375rem/1 var(--letra-sans), system-ui, sans-serif;
+  font: var(--t-chico)/1 var(--letra-sans), system-ui, sans-serif;
   cursor: pointer;
+  transition: background-color var(--rapido);
 }
 
-/* Elegida: borde dorado grueso y fondo dorado muy claro. Sin relleno oscuro, para que la
-   selección nunca se confunda con el color de la prenda (antes «amarillo» salía azul). */
-.opciones input:checked + span {
-  background: #f5ecd7;
-  border-color: var(--oro-hondo);
-  box-shadow: inset 0 0 0 1px var(--oro-hondo);
-  color: var(--anil);
-  font-weight: 600;
-}
+/* Elegida: ver «.filtros button[aria-pressed]», el mismo estado dorado claro. Sin relleno oscuro,
+   para que la selección nunca se confunda con el color de la prenda. */
 
 /* Círculo con el color real de la prenda (src/lib/colores.ts). El borde fino hace visible
    el blanco o el crema sobre el fondo claro. */
@@ -892,17 +1339,205 @@ html:has(.catalogo) {
 .mensaje-previo {
   max-width: 32rem;
   margin: 0.875rem 0 0;
-  font: 0.875rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  font-size: var(--t-chico);
   color: var(--anil-suave);
 }
 
-.mensaje-previo q {
-  quotes: "«" "»";
+/* «La modelo mide 1,70 y usa talla S»: justo debajo de las tallas. */
+.medidas-modelo {
+  margin: 0.6rem 0 0;
+  font-size: var(--t-chico);
+  color: var(--anil-suave);
+}
+
+/* Materiales y cuidados: filas plegables separadas por líneas finas, con «+» que gira a «×». */
+.detalles {
+  margin-top: 2rem;
+  border-top: 1px solid var(--linea);
+}
+
+.detalles details {
+  border-bottom: 1px solid var(--linea);
+}
+
+.detalles summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3rem;
+  font: 600 var(--t-mini)/1.3 var(--letra-sans), system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--anil);
+  list-style: none;
+  cursor: pointer;
+}
+
+.detalles summary::-webkit-details-marker {
+  display: none;
+}
+
+.detalles summary::after {
+  content: "+";
+  font-size: var(--t-entrada);
+  font-weight: 400;
+  color: var(--oro-hondo);
+  transition: transform var(--rapido);
+}
+
+.detalles details[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.detalles details p {
+  max-width: 32rem;
+  margin: 0 0 1.25rem;
+  font-size: var(--t-chico);
+  color: var(--anil-suave);
+  white-space: pre-line;
+}
+
+/* --- «La historia» de la colección: texto a la izquierda, notas a la derecha ----------- */
+
+.coleccion-historia {
+  display: grid;
+  gap: 2.5rem;
+  padding: var(--espacio-seccion) var(--margen) 0;
+}
+
+.coleccion-historia h2 {
+  margin: 0 0 1.25rem;
+  font-size: var(--t-h2);
+  font-style: italic;
+  line-height: 1.05;
+}
+
+.coleccion-historia .texto-largo {
+  max-width: 38rem;
+}
+
+/* Notas (inspiración, materiales): etiqueta en versalitas y texto debajo, entre líneas finas. */
+.notas {
+  margin: 0;
+  border-top: 1px solid var(--linea);
+}
+
+.notas > div {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.notas dt {
+  margin-bottom: 0.4rem;
+  font: 600 var(--t-mini)/1.3 var(--letra-sans), system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--oro-hondo);
+}
+
+.notas dd {
+  margin: 0;
+  color: var(--anil);
+  white-space: pre-line;
+}
+
+@media (min-width: 900px) {
+  .coleccion-historia {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    align-items: start;
+    gap: clamp(3rem, 6vw, 6rem);
+  }
+
+  .notas {
+    margin-top: 2.5rem;
+  }
+}
+
+/* Barra fija de WhatsApp en el celular: aparece cuando el botón principal no está a la vista
+   (SelectorCompra pone data-visible). En computador no hace falta: la ficha queda fija al lado. */
+.barra-compra {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .barra-compra {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem var(--margen) calc(0.75rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--linea);
+    background: rgb(251 251 249 / 0.97);
+    box-shadow: 0 -6px 20px rgb(31 42 68 / 0.08);
+    transform: translateY(110%);
+    transition: transform var(--suave) ease;
+  }
+
+  .barra-compra[data-visible] {
+    transform: none;
+  }
+
+  /* Espacio al final de la página para que la barra no tape el pie. */
+  .catalogo:has(.barra-compra) {
+    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+.barra-compra-texto {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.barra-compra-nombre {
+  display: block;
+  overflow: hidden;
+  font: 500 var(--t-tarjeta)/1.2 var(--letra-serif), Georgia, serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-compra-precio {
+  font-size: var(--t-chico);
+  font-weight: 600;
+  color: var(--anil-suave);
+}
+
+.barra-compra .boton {
+  flex: none;
+  min-height: 2.75rem;
+  padding: 0.6rem 1.1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barra-compra {
+    transition: none;
+  }
 }
 
 .otras {
-  padding: 4rem var(--margen) 0;
+  padding: var(--espacio-seccion) var(--margen);
+}
+
+/* Las secciones aparecen con un desvanecido corto al llegar a ellas, solo en navegadores que
+   lo permiten sin JavaScript y si la persona no pidió menos movimiento. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .aparece {
+      animation: aparece linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@keyframes aparece {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
 }
 
 /* --- Vacío y página no encontrada ----------------------------------------------- */
@@ -910,7 +1545,7 @@ html:has(.catalogo) {
 .catalogo .vacio {
   max-width: 34rem;
   margin: 0 auto;
-  padding: 5rem var(--margen);
+  padding: var(--espacio-seccion) var(--margen);
   text-align: center;
 }
 
@@ -921,12 +1556,15 @@ html:has(.catalogo) {
 
 .catalogo .vacio h1 {
   margin: 1rem 0 0.75rem;
-  font-size: 2.25rem;
-  line-height: 1.1;
+  font-size: var(--t-h2);
+  font-style: italic;
+  line-height: 1.05;
 }
 
 .catalogo .vacio p {
   margin: 0 0 2rem;
+  font: 500 var(--t-entrada)/1.5 var(--letra-serif), Georgia, serif;
+  color: var(--anil-suave);
 }
 
 /* --- Tableta y computador ------------------------------------------------------- */
@@ -955,10 +1593,6 @@ html:has(.catalogo) {
     padding-right: 0;
   }
 
-  .cabecera-coleccion .titular {
-    font-size: clamp(2.5rem, 4vw, 3.5rem);
-  }
-
   /* La altura manda: las fotos caben en la pantalla y las prendas asoman debajo. */
   .cabecera-coleccion-fotos {
     padding-left: 0;
@@ -975,7 +1609,7 @@ html:has(.catalogo) {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     align-items: center;
     gap: clamp(2rem, 5vw, 5rem);
-    padding: 5rem var(--margen);
+    padding: var(--espacio-seccion) var(--margen);
   }
 
   .ficha {
@@ -1044,7 +1678,7 @@ html:has(.catalogo) {
   padding: 0.6rem var(--margen);
   background: var(--anil);
   color: var(--blanco);
-  font: 0.875rem/1.4 var(--letra-sans), system-ui, sans-serif;
+  font: var(--t-chico)/1.4 var(--letra-sans), system-ui, sans-serif;
 }
 
 .barra-admin p {
@@ -1060,10 +1694,6 @@ html:has(.catalogo) {
   padding: 0.25rem 0;
   color: var(--blanco);
   font-weight: 600;
-}
-
-.pie-nota a {
-  color: var(--anil-suave);
 }
 
 /* --- Fotos suaves y efecto al pasar el mouse ------------------------------------ */
@@ -1116,34 +1746,38 @@ html:has(.catalogo) {
 
 .cargo {
   margin: 0 0 1.5rem;
-  font: 0.9375rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  font: var(--t-chico)/1.5 var(--letra-sans), system-ui, sans-serif;
   color: var(--anil-suave);
 }
 
 /* --- Página «Sobre Solena» -------------------------------------------------------- */
+/* Mismo ritmo que el inicio: cabecera en arena, historia en blanco, fundadora en arena. */
 
 .sobre-cabecera {
-  max-width: 48rem;
-  padding: 1rem var(--margen) 1rem;
+  padding: clamp(3rem, 6vw, 5rem) var(--margen);
+  background: var(--fondo-arena);
+}
+
+.sobre-cabecera .entrada {
+  margin-bottom: 0;
 }
 
 .sobre-historia {
   max-width: 42rem;
-  padding: 2rem var(--margen) 0;
+  padding: var(--espacio-seccion) var(--margen);
 }
 
 .sobre-historia h2,
 .fundadora h2 {
-  margin: 0 0 1rem;
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  margin: 0 0 1.25rem;
+  font-size: var(--t-h2);
   font-style: italic;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .texto-largo {
   margin-bottom: 2rem;
-  font-size: 1.125rem;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .texto-largo p {
@@ -1152,19 +1786,25 @@ html:has(.catalogo) {
 
 .fundadora {
   display: grid;
-  gap: 2rem;
-  margin-top: 4rem;
-  padding: 3rem var(--margen);
-  background: var(--blanco);
+  gap: 2.5rem;
+  padding: var(--espacio-seccion) var(--margen);
+  background: var(--fondo-arena);
 }
 
 .fundadora h2 {
   margin-bottom: 0.25rem;
 }
 
+.fundadora-texto {
+  max-width: 36rem;
+}
+
 .sobre-cierre {
-  padding: 2rem var(--margen) 0;
-  font: 500 0.9375rem/1.5 var(--letra-sans), system-ui, sans-serif;
+  margin: 0;
+  padding: var(--espacio-seccion) var(--margen);
+  font-size: var(--t-entrada);
+  font-style: italic;
+  text-align: center;
 }
 
 @media (min-width: 900px) {
@@ -1177,7 +1817,7 @@ html:has(.catalogo) {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     align-items: center;
     gap: clamp(2rem, 5vw, 5rem);
-    padding: 5rem var(--margen);
+    padding: var(--espacio-seccion) var(--margen);
   }
 }
 
@@ -1190,80 +1830,28 @@ html:has(.catalogo) {
   .cabecera-whatsapp {
     min-height: 2.25rem;
     padding: 0.4rem 0.8rem;
-    font-size: 0.875rem;
   }
   .logo img {
     height: 2.1rem;
   }
 }
 
-/* --- Cabecera de colección: contexto, datos clave y acciones -------------------- */
+/* --- Cabecera de colección: contexto, descripción y acciones -------------------- */
 
-/* «Colección Otoño»: dice qué es lo que viene debajo, con su propio espacio. */
-.antetitulo {
-  margin: 0 0 0.6rem;
-  font: 600 0.9375rem/1.3 var(--letra-sans), system-ui, sans-serif;
-  color: var(--oro-hondo);
-}
-
-/* En la cabecera de la colección, «COLECCIÓN OTOÑO» en versalitas: deja claro que el
-   nombre grande de debajo es el de la colección. */
-.cabecera-coleccion .antetitulo,
-.ficha-info .antetitulo {
-  margin-bottom: 0.75rem;
-  font-size: 0.8125rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-/* Descripción de la colección: debajo del nombre, en letra normal (el nombre ya va en cursiva). */
+/* Descripción de la colección: debajo del nombre (tamaño en la escala, ver --t-entrada). */
 .cabecera-coleccion-descripcion {
   max-width: 30rem;
   margin: 0 0 1.75rem;
   color: var(--anil-suave);
-  font-size: 1.125rem;
-  line-height: 1.55;
   white-space: pre-line;
 }
 
-/* Ficha de datos (colección y prenda): etiqueta pequeña a la izquierda, valor a la derecha,
-   filas separadas por líneas finas. Es el único estilo de etiqueta del catálogo. */
-.ficha-datos {
-  margin: 0 0 1.75rem;
-  border-top: 1px solid var(--linea);
-}
-
-.ficha-datos > div {
-  display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr);
-  gap: 1rem;
-  align-items: baseline;
-  padding: 0.85rem 0;
-  border-bottom: 1px solid var(--linea);
-}
-
-.etiqueta,
-.ficha-datos dt,
+/* Etiqueta de las opciones de talla y color: versalitas pequeñas, en gris azulado. */
 .opciones legend {
-  font: 600 0.75rem/1.3 var(--letra-sans), system-ui, sans-serif;
-  letter-spacing: 0.12em;
+  font: 600 var(--t-mini)/1.3 var(--letra-sans), system-ui, sans-serif;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--anil-suave);
-}
-
-.ficha-datos dd {
-  margin: 0;
-  font: 500 1rem/1.5 var(--letra-sans), system-ui, sans-serif;
-  color: var(--anil);
-}
-
-.ficha-datos dd a {
-  color: var(--oro-hondo);
-  text-decoration: none;
-}
-
-.ficha-datos dd a:hover {
-  text-decoration: underline;
 }
 
 .acciones-coleccion {
@@ -1272,11 +1860,11 @@ html:has(.catalogo) {
   gap: 0.625rem;
 }
 
-/* Botones más compactos en la cabecera, para que quepan uno al lado del otro. */
-.acciones-coleccion .boton {
-  min-height: 2.75rem;
-  padding: 0.65rem 1.25rem;
-  font-size: 0.9375rem;
+/* «N prendas» debajo de los botones, igual que .portada-dato del inicio. */
+.coleccion-dato {
+  margin: 1.25rem 0 0;
+  font-size: var(--t-chico);
+  color: var(--anil-suave);
 }
 
 /* Nombre de la prenda sobre su foto: dice qué se está viendo y lleva a la prenda. */
@@ -1292,7 +1880,7 @@ html:has(.catalogo) {
   border-radius: 999px;
   background: rgb(255 255 255 / 0.94);
   color: var(--anil) !important;
-  font: 600 0.9375rem/1.2 var(--letra-sans), system-ui, sans-serif;
+  font: 600 var(--t-chico)/1.2 var(--letra-sans), system-ui, sans-serif;
   text-decoration: none;
   box-shadow: 0 2px 10px rgb(31 42 68 / 0.12);
 }
@@ -1307,8 +1895,8 @@ html:has(.catalogo) {
 }
 
 .foto-prenda-etiqueta {
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
+  font-size: var(--t-mini);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--oro-hondo);
 }
@@ -1324,7 +1912,7 @@ html:has(.catalogo) {
 
 /* El menú marca en qué página se está. */
 .cabecera-nav a[aria-current="page"] {
-  background: #f5ecd7;
+  background: var(--oro-tenue);
 }
 
 /* Botón de segundo nivel: mismo tamaño, sin relleno, para no competir con el principal. */
@@ -1335,12 +1923,11 @@ html:has(.catalogo) {
 }
 
 .catalogo .boton.secundario:hover {
-  background: var(--arena);
+  background: var(--oro-tenue);
 }
 
 .tarjeta-coleccion .antetitulo {
-  margin: 0.1rem 0 0;
-  font-size: 0.875rem;
+  margin: 0 0 0.25rem;
 }
 
 #prendas {

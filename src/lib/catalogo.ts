@@ -15,6 +15,17 @@ const ordenPrendas = [
 
 const primeraFoto = { orderBy: { orden: "asc" }, take: 1 } satisfies Prisma.Coleccion$fotosArgs;
 
+// Tarjeta de prenda: la primera foto y la segunda, que aparece al pasar el mouse.
+const dosFotos = { orderBy: { orden: "asc" }, take: 2 } satisfies Prisma.Prenda$fotosArgs;
+
+function conFotosDeTarjeta<T extends { fotos: Foto[] }>({ fotos, ...p }: T) {
+  return {
+    ...p,
+    foto: fotos[0] ? conUrls(fotos[0]) : null,
+    foto2: fotos[1] ? conUrls(fotos[1]) : null,
+  };
+}
+
 // Portada de una colección: la elegida en el panel; si no hay, su primera foto de campaña
 // y, como último recurso, la foto de su primera prenda.
 function portada(elegida: Foto | null, fotos: Foto[], prendas: { fotos: Foto[] }[]): FotoPublica | null {
@@ -30,7 +41,7 @@ export async function coleccionesPublicadas() {
     include: {
       portada: true,
       fotos: primeraFoto,
-      prendas: { select: { fotos: primeraFoto }, orderBy: ordenPrendas },
+      prendas: { select: { id: true, slug: true, nombre: true, fotos: primeraFoto }, orderBy: ordenPrendas },
       _count: { select: { prendas: true } },
     },
   });
@@ -38,7 +49,24 @@ export async function coleccionesPublicadas() {
     ...c,
     portada: portada(elegida, fotos, prendas),
     totalPrendas: _count.prendas,
+    // Vista previa en el inicio: las 3 primeras prendas que tienen foto.
+    vistaPrevia: prendas
+      .filter((p) => p.fotos[0])
+      .slice(0, 3)
+      .map(({ fotos, ...p }) => ({ ...p, foto: conUrls(fotos[0]) })),
   }));
+}
+
+// «Prendas destacadas» del inicio: de todas las colecciones publicadas, primero las marcadas
+// como destacadas en el panel y luego las más nuevas. Solo prendas con foto.
+export async function prendasDestacadas(limite: number) {
+  const prendas = await db.prenda.findMany({
+    where: { coleccion: { publicada: true }, fotos: { some: {} } },
+    orderBy: [{ destacada: "desc" }, { createdAt: "desc" }],
+    take: limite,
+    include: { fotos: dosFotos },
+  });
+  return prendas.map(conFotosDeTarjeta);
 }
 
 export type ColeccionResumen = Awaited<ReturnType<typeof coleccionesPublicadas>>[number];
@@ -52,7 +80,7 @@ export const coleccionPublicada = cache(async (slug: string) => {
       fotos: { orderBy: { orden: "asc" } },
       prendas: {
         orderBy: ordenPrendas,
-        include: { fotos: primeraFoto, categoria: { select: { slug: true, nombre: true } } },
+        include: { fotos: dosFotos, categoria: { select: { slug: true, nombre: true } } },
       },
     },
   });
@@ -61,7 +89,7 @@ export const coleccionPublicada = cache(async (slug: string) => {
     ...c,
     portada: portada(c.portada, c.fotos, c.prendas),
     fotos: c.fotos.map(conUrls),
-    prendas: c.prendas.map(({ fotos, ...p }) => ({ ...p, foto: fotos[0] ? conUrls(fotos[0]) : null })),
+    prendas: c.prendas.map(conFotosDeTarjeta),
   };
 });
 
@@ -82,12 +110,12 @@ export const prendaPublicada = cache(async (slug: string) => {
     where: { coleccionId: p.coleccionId, id: { not: p.id } },
     orderBy: ordenPrendas,
     take: 4,
-    include: { fotos: primeraFoto, categoria: { select: { slug: true, nombre: true } } },
+    include: { fotos: dosFotos, categoria: { select: { slug: true, nombre: true } } },
   });
 
   return {
     ...p,
     fotos: p.fotos.map(conUrls),
-    otras: otras.map(({ fotos, ...o }) => ({ ...o, foto: fotos[0] ? conUrls(fotos[0]) : null })),
+    otras: otras.map(conFotosDeTarjeta),
   };
 });

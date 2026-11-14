@@ -7,12 +7,9 @@ import { Espiral } from "../../_componentes/Espiral";
 import { Imagen } from "../../_componentes/Imagen";
 import { Prendas } from "../../_componentes/Prendas";
 import { EnlaceWhatsapp } from "../../_componentes/Seguimiento";
-import { nombreTemporada } from "@/lib/tienda";
+import { nombreTemporada, parrafos } from "@/lib/tienda";
 
 export const revalidate = 3600;
-
-// Cuántos nombres de prenda se muestran junto al nombre de la colección; el resto, en la rejilla.
-const PRENDAS_EN_CABECERA = 5;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -58,40 +55,22 @@ export default async function PaginaColeccion({ params }: Props) {
           </ul>
         )}
 
-        {/* Jerarquía simple: qué es (antetítulo) → nombre → descripción → ficha de datos → acciones.
-            Un solo estilo de etiqueta en toda la ficha, para que se lea ordenado. */}
+        {/* Jerarquía simple: ruta → qué es (antetítulo) → nombre → descripción → acciones.
+            Los nombres de las prendas no se listan aquí: ya salen en las fotos y en la rejilla. */}
         <div className="cabecera-coleccion-texto">
-          <p className="antetitulo">{c.temporada ? nombreTemporada(c.temporada) : "Colección"}</p>
+          <nav className="ruta" aria-label="Estás en">
+            <Link href="/">Inicio</Link>
+            <span aria-hidden> / </span>
+            <Link href="/#colecciones">Colecciones</Link>
+          </nav>
+          {c.temporada && <p className="antetitulo">{nombreTemporada(c.temporada)}</p>}
           <h1 className="titular">{c.nombre}</h1>
           {c.descripcion && <p className="cabecera-coleccion-descripcion">{c.descripcion}</p>}
-
-          {/* Ficha de datos: etiqueta a la izquierda, valor a la derecha, entre líneas finas. */}
-          {total > 0 && (
-            <dl className="ficha-datos">
-              <div>
-                <dt>{total === 1 ? "Prenda" : "Prendas"}</dt>
-                <dd>
-                  {c.prendas.slice(0, PRENDAS_EN_CABECERA).map((p, i) => (
-                    <span key={p.id}>
-                      {i > 0 && " · "}
-                      <Link href={`/prendas/${p.slug}`}>{p.nombre}</Link>
-                    </span>
-                  ))}
-                  {total > PRENDAS_EN_CABECERA && (
-                    <>
-                      {" · "}
-                      <a href="#prendas">y {total - PRENDAS_EN_CABECERA} más</a>
-                    </>
-                  )}
-                </dd>
-              </div>
-            </dl>
-          )}
 
           <div className="acciones-coleccion">
             {total > 0 && (
               <a className="boton" href="#prendas">
-                {total === 1 ? "Ver la prenda" : `Ver las ${total} prendas`}
+                {total === 1 ? "Ver la prenda" : "Ver las prendas"}
               </a>
             )}
             <EnlaceWhatsapp
@@ -101,8 +80,43 @@ export default async function PaginaColeccion({ params }: Props) {
               Preguntar por WhatsApp
             </EnlaceWhatsapp>
           </div>
+          {total > 0 && <p className="coleccion-dato">{total === 1 ? "1 prenda" : `${total} prendas`}</p>}
         </div>
       </header>
+
+      {/* «La historia»: texto editorial a la izquierda; inspiración y materiales como notas a la
+          derecha. Solo aparece si la colección tiene alguno de esos textos (se escriben en el panel). */}
+      {(c.historia || c.inspiracion || c.materiales) && (
+        <section className="coleccion-historia aparece" aria-labelledby="titulo-historia">
+          <div className="coleccion-historia-texto">
+            <p className="seccion-antetitulo">La historia</p>
+            <h2 id="titulo-historia">Detrás de la colección</h2>
+            {c.historia && (
+              <div className="texto-largo">
+                {parrafos(c.historia).map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
+          </div>
+          {(c.inspiracion || c.materiales) && (
+            <dl className="notas">
+              {c.inspiracion && (
+                <div>
+                  <dt>Inspiración</dt>
+                  <dd>{c.inspiracion}</dd>
+                </div>
+              )}
+              {c.materiales && (
+                <div>
+                  <dt>Materiales</dt>
+                  <dd>{c.materiales}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+        </section>
+      )}
 
       {c.prendas.length > 0 ? (
         <Prendas prendas={c.prendas} />

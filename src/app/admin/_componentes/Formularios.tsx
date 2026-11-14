@@ -52,6 +52,9 @@ export type ColeccionFormulario = {
   slug: string;
   temporada: string | null;
   descripcion: string | null;
+  historia: string | null;
+  inspiracion: string | null;
+  materiales: string | null;
   fechaLanzamiento: Date | null;
 };
 
@@ -80,7 +83,50 @@ export function FormularioColeccion({ accion, coleccion }: { accion: Accion; col
       <label>
         Descripción
         <textarea name="descripcion" rows={4} maxLength={5000} defaultValue={coleccion?.descripcion ?? ""} />
+        <span className="ayuda">Una o dos frases. Sale en la portada del inicio, bajo el nombre.</span>
       </label>
+
+      {/* Textos editoriales: plegados para no abrumar; se abren solos si ya tienen algo escrito. */}
+      <details
+        className="opcional-editorial"
+        open={Boolean(coleccion?.historia || coleccion?.inspiracion || coleccion?.materiales)}
+      >
+        <summary>Para contar más de la colección (opcional)</summary>
+        <p className="ayuda">
+          Aparecen en la página de la colección, en la sección «La historia». Lo que dejes vacío no se muestra.
+        </p>
+        <label>
+          La historia
+          <textarea
+            name="historia"
+            rows={5}
+            maxLength={5000}
+            defaultValue={coleccion?.historia ?? ""}
+            placeholder="Cómo nació esta colección, qué quiere contar…"
+          />
+        </label>
+        <label>
+          Inspiración
+          <textarea
+            name="inspiracion"
+            rows={3}
+            maxLength={2000}
+            defaultValue={coleccion?.inspiracion ?? ""}
+            placeholder="El mar del Caribe al atardecer, las casas de Mompox…"
+          />
+        </label>
+        <label>
+          Materiales
+          <textarea
+            name="materiales"
+            rows={2}
+            maxLength={2000}
+            defaultValue={coleccion?.materiales ?? ""}
+            placeholder="Lino, algodón orgánico, botones de coco…"
+          />
+        </label>
+      </details>
+
       <label>
         Dirección en la web
         <input name="slug" maxLength={120} defaultValue={coleccion?.slug} placeholder="Se genera a partir del nombre" />
@@ -99,6 +145,9 @@ export type PrendaFormulario = {
   precio: number | null;
   tallas: string[];
   colores: string[];
+  materiales: string | null;
+  cuidados: string | null;
+  medidasModelo: string | null;
   disponible: boolean;
   destacada: boolean;
   coleccionId: string;
@@ -282,6 +331,44 @@ export function CamposPrenda({
           </label>
         </div>
         <ElegirColores conocidos={paleta} iniciales={prenda?.colores ?? []} />
+
+        {/* Detalles de la ficha: plegados; se abren solos si ya tienen algo escrito. */}
+        <details
+          className="opcional-editorial"
+          open={Boolean(prenda?.materiales || prenda?.cuidados || prenda?.medidasModelo)}
+        >
+          <summary>Detalles de la prenda (opcional)</summary>
+          <p className="ayuda">Ayudan a decidir la talla y a confiar en la compra. Lo que dejes vacío no se muestra.</p>
+          <label>
+            Medidas de la modelo
+            <input
+              name="medidasModelo"
+              maxLength={160}
+              defaultValue={prenda?.medidasModelo ?? ""}
+              placeholder="La modelo mide 1,70 y usa talla S"
+            />
+            <span className="ayuda">Sale junto a las tallas.</span>
+          </label>
+          <label>
+            Materiales
+            <input
+              name="materiales"
+              maxLength={500}
+              defaultValue={prenda?.materiales ?? ""}
+              placeholder="100 % lino"
+            />
+          </label>
+          <label>
+            Cuidados
+            <textarea
+              name="cuidados"
+              rows={2}
+              maxLength={1000}
+              defaultValue={prenda?.cuidados ?? ""}
+              placeholder="Lavar a mano con agua fría. No usar secadora."
+            />
+          </label>
+        </details>
         <label>
           Dirección en la web
           <input name="slug" maxLength={160} defaultValue={prenda?.slug} placeholder="Se genera a partir del nombre" />
