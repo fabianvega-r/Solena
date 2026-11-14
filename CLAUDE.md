@@ -54,7 +54,9 @@ Otros comandos: `npm run db:migrate` (crear una migración tras cambiar `prisma/
   «Administrar la tienda» y barra de sesión. Rediseño editorial hecho (Cormorant + Instrument Sans, escala única
   `--t-*` y `--espacio-seccion` en `catalogo.css`; precio solo en la ficha; sin carrito ni buscador, se vende por
   WhatsApp). Falta: las mejoras de la investigación que siguen abiertas (ver abajo).
-- [ ] Etapa 3: Vercel + Vercel Blob (pasos en el README, *Despliegue gratuito*). Las fotos de MinIO se pasan con `npm run fotos:copiar-a-blob`.
+- [x] Etapa 3: publicado en https://solena-tau.vercel.app (Vercel Hobby + Vercel Blob + Neon; pasos en el README,
+  *Despliegue gratuito*). Variables en Vercel: DATABASE_URL, DIRECT_URL, ADMIN_TOKEN, BLOB_READ_WRITE_TOKEN,
+  FOTOS_URL_PUBLICA. Cada push a main se publica solo. Falta: reglas de límite por IP en el Firewall de Vercel.
 
 ### Plan de mejoras (investigación: `reports/Páginas de moda para Solena.md`)
 
