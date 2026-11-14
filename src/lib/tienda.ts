@@ -1,8 +1,8 @@
 // Datos de contacto y formato de la tienda, usados por el catálogo público.
 
 // Número de WhatsApp de la tienda, con indicativo de país y sin «+» ni espacios.
-export const WHATSAPP = "573006102215";
-export const WHATSAPP_VISIBLE = "+57 300 610 2215";
+export const WHATSAPP = "573043938875";
+export const WHATSAPP_VISIBLE = "+57 304 393 8875";
 
 // Colombia no cambia de horario en el año.
 export const ZONA_HORARIA = "America/Bogota";
