@@ -11,6 +11,13 @@ import { nombreTemporada, parrafos } from "@/lib/tienda";
 
 export const revalidate = 3600;
 
+// Cada colección se arma la primera vez que alguien la abre y queda guardada, como el inicio:
+// las visitas siguientes no consultan la base de datos (de 1-2 s a milisegundos). Se renueva
+// cuando el panel guarda cambios (revalidatePath en acciones.ts) o, como respaldo, cada hora.
+export async function generateStaticParams() {
+  return [];
+}
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

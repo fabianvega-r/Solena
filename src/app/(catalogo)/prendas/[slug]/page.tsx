@@ -11,6 +11,13 @@ import { TAMANOS_REJILLA, TarjetaPrenda } from "../../_componentes/TarjetaPrenda
 
 export const revalidate = 3600;
 
+// Cada ficha se arma la primera vez que alguien la abre y queda guardada, como el inicio:
+// las visitas siguientes no consultan la base de datos (de 2-4 s a milisegundos). Se renueva
+// cuando el panel guarda cambios (revalidatePath en acciones.ts) o, como respaldo, cada hora.
+export async function generateStaticParams() {
+  return [];
+}
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

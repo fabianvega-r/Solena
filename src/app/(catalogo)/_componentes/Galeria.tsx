@@ -10,7 +10,12 @@ import { Imagen } from "./Imagen";
 export function Galeria({ fotos, nombre }: { fotos: FotoPublica[]; nombre: string }) {
   const pista = useRef<HTMLUListElement>(null);
   const [actual, setActual] = useState(0);
+  // Para ahorrar datos: las fotos grandes se descargan hasta la siguiente a la vista; las demás,
+  // cuando la clienta avanza (las miniaturas sí se ven todas: pesan poco).
+  const [hasta, setHasta] = useState(1);
   const varias = fotos.length > 1;
+
+  useEffect(() => setHasta((h) => Math.max(h, actual + 1)), [actual]);
 
   // Al deslizar con el dedo o la rueda, se averigua qué foto quedó a la vista.
   useEffect(() => {
@@ -40,12 +45,14 @@ export function Galeria({ fotos, nombre }: { fotos: FotoPublica[]; nombre: strin
         <ul ref={pista} className="galeria-pista" aria-label={`Fotos de ${nombre}`} tabIndex={varias ? 0 : undefined}>
           {fotos.map((f, i) => (
             <li key={f.id} aria-hidden={varias && i !== actual}>
-              <Imagen
-                foto={f}
-                sizes="(min-width: 900px) 55vw, 100vw"
-                prioridad={i === 0}
-                alt={f.alt || (i === 0 ? nombre : `${nombre}, foto ${i + 1}`)}
-              />
+              {i <= hasta && (
+                <Imagen
+                  foto={f}
+                  sizes="(min-width: 900px) 55vw, 100vw"
+                  prioridad={i === 0}
+                  alt={f.alt || (i === 0 ? nombre : `${nombre}, foto ${i + 1}`)}
+                />
+              )}
             </li>
           ))}
         </ul>

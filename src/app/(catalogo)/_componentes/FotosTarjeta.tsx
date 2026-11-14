@@ -12,7 +12,12 @@ type Props = { fotos: FotoPublica[]; href: string; nombre: string; sizes: string
 export function FotosTarjeta({ fotos, href, nombre, sizes }: Props) {
   const pista = useRef<HTMLDivElement>(null);
   const [actual, setActual] = useState(0);
+  // Para ahorrar datos: solo se descargan las fotos hasta la siguiente a la que se ha visto.
+  // Las demás se piden cuando la clienta desliza (no todas de una vez en cada tarjeta).
+  const [hasta, setHasta] = useState(1);
   const varias = fotos.length > 1;
+
+  useEffect(() => setHasta((h) => Math.max(h, actual + 1)), [actual]);
 
   // Al deslizar con el dedo, se averigua qué foto quedó a la vista (para los puntitos).
   useEffect(() => {
@@ -34,11 +39,16 @@ export function FotosTarjeta({ fotos, href, nombre, sizes }: Props) {
   return (
     <div className="fotos-tarjeta">
       <div ref={pista} className="fotos-tarjeta-pista">
-        {fotos.map((f) => (
+        {fotos.map((f, i) => (
           // Cada foto lleva a la ficha. Para teclado y lectores de pantalla el enlace es el nombre
-          // de la tarjeta (h3), por eso estas fotos se les ocultan.
+          // de la tarjeta (h3), por eso estas fotos se les ocultan. Las que aún no tocan se
+          // muestran como el difuminado de la foto (pesa casi nada) hasta que se acerque su turno.
           <Link key={f.id} href={href} tabIndex={-1} aria-hidden className="fotos-tarjeta-foto">
-            <Imagen foto={f} sizes={sizes} alt="" />
+            {i <= hasta ? (
+              <Imagen foto={f} sizes={sizes} alt="" />
+            ) : (
+              <span className="imagen" style={{ backgroundImage: `url(${f.blurDataUrl})` }} />
+            )}
           </Link>
         ))}
       </div>

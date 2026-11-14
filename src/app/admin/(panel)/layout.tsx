@@ -9,7 +9,7 @@ export default async function LayoutPanel({ children }: { children: React.ReactN
     <>
       <header className="barra">
         <Link href="/admin" className="marca">
-          <img src="/logo.png" alt="Solena" width={752} height={274} />
+          <img src="/logo.webp" alt="Solena" width={395} height={144} />
           <span>Panel</span>
         </Link>
         <nav>

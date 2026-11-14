@@ -37,7 +37,7 @@ export default function LayoutCatalogo({ children }: { children: React.ReactNode
 
       <header className="cabecera">
         <Link href="/" className="logo">
-          <img src="/logo.png" alt="Solena, inicio" width={752} height={274} />
+          <img src="/logo.webp" alt="Solena, inicio" width={395} height={144} />
         </Link>
         <MenuPrincipal />
       </header>
@@ -49,7 +49,7 @@ export default function LayoutCatalogo({ children }: { children: React.ReactNode
         <div className="pie-columnas">
           <div className="pie-marca">
             <Link href="/" className="pie-logo">
-              <img src="/logo.png" alt="Solena, inicio" width={752} height={274} loading="lazy" />
+              <img src="/logo.webp" alt="Solena, inicio" width={395} height={144} loading="lazy" />
             </Link>
             <p>Colecciones de ropa. Mira las prendas con calma y pregúntanos por WhatsApp.</p>
           </div>
