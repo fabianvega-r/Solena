@@ -5,12 +5,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
 import { cambiarPublicacion, estadoPublicacion, guardarPrenda } from "../acciones";
+import { mismoColor } from "@/lib/colores";
 import { CamposPrenda } from "./Formularios";
 import { prepararFoto } from "./prepararFoto";
 
 type Opcion = { id: string; nombre: string };
 type Elegida = { clave: number; archivo: File; vista: string };
-type Resultado = { prendaId: string; nombre: string; coleccionId: string; subidas: number; fallidas: string[] };
+type Resultado = {
+  prendaId: string;
+  nombre: string;
+  coleccionId: string;
+  colores: string[];
+  subidas: number;
+  fallidas: string[];
+};
 type EstadoColeccion = NonNullable<Awaited<ReturnType<typeof estadoPublicacion>>>;
 
 function fotos(n: number) {
@@ -21,14 +29,18 @@ export function NuevaPrenda({
   coleccionId,
   colecciones,
   categorias,
+  paleta,
 }: {
   coleccionId?: string;
   colecciones: Opcion[];
   categorias: Opcion[];
+  paleta: string[];
 }) {
   const [intento, setIntento] = useState(0); // al cambiar, el formulario empieza vacío
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [coleccionActual, setColeccionActual] = useState(coleccionId);
+  // Los colores nuevos de la prenda recién creada se suman a la paleta de la siguiente.
+  const [paletaActual, setPaletaActual] = useState(paleta);
 
   if (resultado) {
     return (
@@ -36,6 +48,7 @@ export function NuevaPrenda({
         resultado={resultado}
         otraPrenda={() => {
           setColeccionActual(resultado.coleccionId);
+          setPaletaActual((p) => [...p, ...resultado.colores.filter((c) => !p.some((k) => mismoColor(k, c)))]);
           setResultado(null);
           setIntento((n) => n + 1);
           window.scrollTo({ top: 0 });
@@ -49,6 +62,7 @@ export function NuevaPrenda({
       coleccionId={coleccionActual}
       colecciones={colecciones}
       categorias={categorias}
+      paleta={paletaActual}
       alTerminar={setResultado}
     />
   );
@@ -58,11 +72,13 @@ function FormularioNuevaPrenda({
   coleccionId,
   colecciones,
   categorias,
+  paleta,
   alTerminar,
 }: {
   coleccionId?: string;
   colecciones: Opcion[];
   categorias: Opcion[];
+  paleta: string[];
   alTerminar: (r: Resultado) => void;
 }) {
   const [elegidas, setElegidas] = useState<Elegida[]>([]);
@@ -131,6 +147,7 @@ function FormularioNuevaPrenda({
         prendaId: r.id,
         nombre: String(datos.get("nombre") ?? "").trim(),
         coleccionId: String(datos.get("coleccionId")),
+        colores: String(datos.get("colores") ?? "").split(",").map((c) => c.trim()).filter(Boolean),
         subidas: elegidas.length - fallidas.length,
         fallidas,
       });
@@ -139,7 +156,7 @@ function FormularioNuevaPrenda({
 
   return (
     <form onSubmit={onSubmit} className="tarjeta formulario" id="datos">
-      <CamposPrenda coleccionId={coleccionId} colecciones={colecciones} categorias={categorias} />
+      <CamposPrenda coleccionId={coleccionId} colecciones={colecciones} categorias={categorias} paleta={paleta} />
 
       <fieldset className="fotos-nuevas" disabled={pendiente}>
         <legend>Fotos *</legend>

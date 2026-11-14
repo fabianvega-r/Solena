@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { z } from "zod";
 import { COOKIE_SESION, DURACION_SESION, exigirAdmin, tokenValido, valorSesion } from "@/lib/auth";
+import { limpiarColores } from "@/lib/colores";
 import { db } from "@/lib/db";
 import { DatosColeccion, DatosMarca, DatosPrenda } from "@/lib/esquemas";
 import { guardarTextosMarca } from "@/lib/marca";
@@ -163,7 +164,7 @@ export async function guardarPrenda(id: string | null, _previo: Estado, form: Fo
     descripcion: texto(form, "descripcion"),
     precio: pesos(form, "precio"),
     tallas: lista(form, "tallas"),
-    colores: lista(form, "colores"),
+    colores: limpiarColores(lista(form, "colores")),
     disponible: form.get("disponible") === "on",
     destacada: form.get("destacada") === "on",
     coleccionId: texto(form, "coleccionId"),

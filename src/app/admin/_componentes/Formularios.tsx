@@ -1,6 +1,7 @@
 "use client";
 import { startTransition, useActionState, useTransition, useState, type FormEvent } from "react";
 import { guardarMarca, iniciarSesion, type Estado } from "../acciones";
+import { ElegirColores } from "./ElegirColores";
 
 type Accion = (previo: Estado, form: FormData) => Promise<Estado>;
 
@@ -112,17 +113,25 @@ export function FormularioPrenda({
   coleccionId,
   colecciones,
   categorias,
+  paleta,
 }: {
   accion: Accion;
   prenda?: PrendaFormulario;
   coleccionId?: string;
   colecciones: Opcion[];
   categorias: Opcion[];
+  paleta: string[];
 }) {
   const { estado, pendiente, onSubmit } = useFormulario(accion);
   return (
     <form onSubmit={onSubmit} className="tarjeta formulario" id="datos">
-      <CamposPrenda prenda={prenda} coleccionId={coleccionId} colecciones={colecciones} categorias={categorias} />
+      <CamposPrenda
+        prenda={prenda}
+        coleccionId={coleccionId}
+        colecciones={colecciones}
+        categorias={categorias}
+        paleta={paleta}
+      />
       <Mensaje estado={estado} />
       <BotonGuardar texto={prenda ? "Guardar cambios" : "Crear prenda"} pendiente={pendiente} />
     </form>
@@ -213,16 +222,19 @@ export function FormularioMarca({
 }
 
 // Campos de una prenda, compartidos por el formulario de edición y el de prenda nueva.
+// `paleta`: colores que se ofrecen para elegir (ver coloresDeLaTienda en src/lib/paleta.ts).
 export function CamposPrenda({
   prenda,
   coleccionId,
   colecciones,
   categorias,
+  paleta,
 }: {
   prenda?: PrendaFormulario;
   coleccionId?: string;
   colecciones: Opcion[];
   categorias: Opcion[];
+  paleta: string[];
 }) {
   return (
     <>
@@ -268,12 +280,8 @@ export function CamposPrenda({
             <input name="tallas" defaultValue={prenda?.tallas.join(", ")} placeholder="XS, S, M, L" />
             <span className="ayuda">Separadas por comas.</span>
           </label>
-          <label>
-            Colores
-            <input name="colores" defaultValue={prenda?.colores.join(", ")} placeholder="Arena, Negro" />
-            <span className="ayuda">Separados por comas.</span>
-          </label>
         </div>
+        <ElegirColores conocidos={paleta} iniciales={prenda?.colores ?? []} />
         <label>
           Dirección en la web
           <input name="slug" maxLength={160} defaultValue={prenda?.slug} placeholder="Se genera a partir del nombre" />

@@ -2,6 +2,7 @@
 // Elegir talla y color y preguntar por WhatsApp. El mensaje se arma solo y se muestra
 // antes de enviarlo, para que la persona sepa exactamente qué va a escribir.
 import { useEffect, useState } from "react";
+import { muestraDeColor } from "@/lib/colores";
 import { Corazon } from "./Corazon";
 import { EnlaceWhatsapp } from "./Seguimiento";
 
@@ -13,24 +14,32 @@ type Props = {
   disponible: boolean;
 };
 
-function Opciones({ titulo, nombre, opciones, valor, cambiar }: {
+function Opciones({ titulo, nombre, opciones, valor, cambiar, muestra }: {
   titulo: string;
   nombre: string;
   opciones: string[];
   valor: string;
   cambiar: (v: string) => void;
+  // Solo para colores: el círculo con el color real junto al nombre.
+  muestra?: (opcion: string) => string | null;
 }) {
   if (opciones.length === 0) return null;
   return (
     <fieldset className="opciones">
       <legend>{titulo}</legend>
       <div>
-        {opciones.map((o) => (
-          <label key={o}>
-            <input type="radio" name={nombre} value={o} checked={valor === o} onChange={() => cambiar(o)} />
-            <span>{o}</span>
-          </label>
-        ))}
+        {opciones.map((o) => {
+          const color = muestra?.(o);
+          return (
+            <label key={o}>
+              <input type="radio" name={nombre} value={o} checked={valor === o} onChange={() => cambiar(o)} />
+              <span>
+                {color && <i className="muestra-color" style={{ background: color }} aria-hidden />}
+                {o}
+              </span>
+            </label>
+          );
+        })}
       </div>
     </fieldset>
   );
@@ -59,7 +68,7 @@ export function SelectorCompra({ prendaId, nombre, tallas, colores, disponible }
       {disponible && (
         <>
           <Opciones titulo="Talla" nombre="talla" opciones={tallas} valor={talla} cambiar={setTalla} />
-          <Opciones titulo="Color" nombre="color" opciones={colores} valor={color} cambiar={setColor} />
+          <Opciones titulo="Color" nombre="color" opciones={colores} valor={color} cambiar={setColor} muestra={muestraDeColor} />
         </>
       )}
 

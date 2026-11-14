@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { exigirAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { conUrls } from "@/lib/imagenes";
+import { coloresDeLaTienda } from "@/lib/paleta";
 import { borrarPrenda, guardarPrenda } from "../../../acciones";
 import { BotonBorrar, FormularioPrenda } from "../../../_componentes/Formularios";
 import { GestorFotos } from "../../../_componentes/GestorFotos";
@@ -11,13 +12,14 @@ export default async function EditarPrenda({ params }: { params: Promise<{ id: s
   await exigirAdmin();
   const { id } = await params;
 
-  const [prenda, colecciones, categorias] = await Promise.all([
+  const [prenda, colecciones, categorias, paleta] = await Promise.all([
     db.prenda.findUnique({
       where: { id },
       include: { fotos: { orderBy: { orden: "asc" } }, coleccion: { select: { nombre: true, publicada: true } } },
     }),
     db.coleccion.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, nombre: true } }),
     db.categoria.findMany({ orderBy: { orden: "asc" }, select: { id: true, nombre: true } }),
+    coloresDeLaTienda(),
   ]);
   if (!prenda) notFound();
 
@@ -56,6 +58,7 @@ export default async function EditarPrenda({ params }: { params: Promise<{ id: s
         }}
         colecciones={colecciones}
         categorias={categorias}
+        paleta={paleta}
       />
 
       <GestorFotos

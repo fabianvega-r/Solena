@@ -1219,6 +1219,87 @@ body:has(.admin) {
   }
 }
 
+/* --- Elegir colores de una prenda (ElegirColores.tsx) ------------------------- */
+
+.elegir-colores {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.elegir-colores legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.elegir-colores > .ayuda {
+  margin: 0.15rem 0 0.6rem;
+}
+
+.paleta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Cada color es una píldora con su círculo. Elegido: borde y fondo dorados más una marca ✓,
+   para que no dependa solo del color (accesible para quien no distingue colores). */
+.admin button.color-opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.8rem 0.35rem 0.45rem;
+  border-radius: 999px;
+}
+
+.admin button.color-opcion[aria-pressed="true"] {
+  border-color: var(--acento);
+  box-shadow: inset 0 0 0 1px var(--acento);
+  background: #f5ecd7;
+  font-weight: 600;
+}
+
+.admin button.color-opcion[aria-pressed="true"]::after {
+  content: "✓";
+  color: var(--acento);
+}
+
+.admin .muestra-color {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(31 42 68 / 0.2);
+}
+
+/* Color que no está en la tabla de muestras: círculo rayado, «sin muestra». */
+.admin .muestra-color.sin-muestra {
+  background: repeating-linear-gradient(45deg, #ece9e1 0 3px, #ffffff 3px 6px);
+}
+
+.otro-color {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.otro-color label {
+  flex: 1 1 14rem;
+}
+
+.colores-elegidos {
+  margin: 0.6rem 0 0;
+  color: var(--suave);
+}
+
+.aviso-color {
+  color: var(--ok);
+}
+
 /* --- Pantalla de error del panel (error.tsx) ---------------------------------- */
 
 .error-panel {

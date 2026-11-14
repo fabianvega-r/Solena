@@ -852,10 +852,24 @@ html:has(.catalogo) {
   cursor: pointer;
 }
 
+/* Elegida: borde dorado grueso y fondo dorado muy claro. Sin relleno oscuro, para que la
+   selección nunca se confunda con el color de la prenda (antes «amarillo» salía azul). */
 .opciones input:checked + span {
-  background: var(--anil);
-  border-color: var(--anil);
-  color: var(--blanco);
+  background: #f5ecd7;
+  border-color: var(--oro-hondo);
+  box-shadow: inset 0 0 0 1px var(--oro-hondo);
+  color: var(--anil);
+  font-weight: 600;
+}
+
+/* Círculo con el color real de la prenda (src/lib/colores.ts). El borde fino hace visible
+   el blanco o el crema sobre el fondo claro. */
+.muestra-color {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(31 42 68 / 0.2);
 }
 
 .opciones input:focus-visible + span {

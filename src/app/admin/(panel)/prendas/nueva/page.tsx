@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { exigirAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { coloresDeLaTienda } from "@/lib/paleta";
 import { AvisoCreado } from "../../../_componentes/Aviso";
 import { NuevaPrenda } from "../../../_componentes/NuevaPrenda";
 import { avanceDe, PasosColeccion } from "../../../_componentes/PasosColeccion";
@@ -14,9 +15,10 @@ export default async function PaginaNuevaPrenda({
   await exigirAdmin();
   const { coleccion: coleccionId, creada } = await searchParams;
 
-  const [colecciones, categorias, coleccion] = await Promise.all([
+  const [colecciones, categorias, paleta, coleccion] = await Promise.all([
     db.coleccion.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, nombre: true } }),
     db.categoria.findMany({ orderBy: { orden: "asc" }, select: { id: true, nombre: true } }),
+    coloresDeLaTienda(),
     coleccionId
       ? db.coleccion.findUnique({
           where: { id: coleccionId },
@@ -58,7 +60,7 @@ export default async function PaginaNuevaPrenda({
       <p className="ayuda">
         Llena los datos y agrega sus fotos. Al guardar podrás publicar la colección o seguir añadiendo prendas.
       </p>
-      <NuevaPrenda coleccionId={coleccion?.id} colecciones={colecciones} categorias={categorias} />
+      <NuevaPrenda coleccionId={coleccion?.id} colecciones={colecciones} categorias={categorias} paleta={paleta} />
     </>
   );
 }
