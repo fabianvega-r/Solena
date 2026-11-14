@@ -66,7 +66,6 @@
 .historia,
 .descripcion,
 .texto-largo,
-.cabecera-coleccion-descripcion,
 .portada-descripcion,
 .sobre-cierre {
   font-family: var(--letra-serif), Georgia, serif;
@@ -77,7 +76,6 @@
 .historia,
 .descripcion,
 .texto-largo,
-.cabecera-coleccion-descripcion,
 .portada-descripcion {
   font-size: var(--t-entrada);
   line-height: 1.5;
@@ -190,8 +188,7 @@ body:has(.catalogo) {
 }
 
 .conteo,
-.precio,
-.pista {
+.precio {
   font-family: var(--letra-sans), system-ui, sans-serif;
   font-size: var(--t-chico);
   color: var(--anil-suave);
@@ -512,6 +509,67 @@ html:has(.catalogo) {
   }
 }
 
+/* --- «Cómo comprar»: 3 pasos numerados en arena, con un botón al final ------------------ */
+
+.como-comprar {
+  padding: var(--espacio-seccion) var(--margen);
+  background: var(--fondo-arena);
+}
+
+.pasos-compra {
+  display: grid;
+  gap: 1.75rem;
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.pasos-compra li {
+  text-align: center;
+}
+
+/* Número en un círculo dorado, como la espiral del sello. */
+.paso-numero {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--oro);
+  border-radius: 50%;
+  background: var(--blanco);
+  /* Sans: los números de Cormorant son «antiguos» (bajitos) y casi no se ven en el círculo. */
+  font: 600 var(--t-base)/1 var(--letra-sans), system-ui, sans-serif;
+  color: var(--oro-hondo);
+}
+
+.pasos-compra h3 {
+  margin: 0 0 0.4rem;
+  font-size: var(--t-tarjeta);
+  line-height: 1.2;
+}
+
+.pasos-compra p {
+  max-width: 20rem;
+  margin: 0 auto;
+  font-size: var(--t-chico);
+  color: var(--anil-suave);
+}
+
+.como-comprar-accion {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+@media (min-width: 800px) {
+  .pasos-compra {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+  }
+}
+
 /* --- «Más colecciones» en filas: foto grande y texto al lado, alternando lados --------- */
 
 .colecciones-filas {
@@ -765,40 +823,21 @@ html:has(.catalogo) {
   content: "→";
 }
 
-/* El tren de colecciones: solo las que existen. Si no caben, avanzan despacio hasta la última,
-   esperan y regresan; se detienen al pasar el mouse o tocar una. Si caben, se quedan quietas. */
-.tren {
-  container-type: inline-size; /* para medir el ancho visible con «cqw» */
-  margin: 1.75rem calc(-1 * var(--margen)) 0;
-  overflow: hidden;
-  mask-image: linear-gradient(to right, transparent, #000 var(--margen), #000 calc(100% - var(--margen)), transparent);
-}
-
-.tren-via {
-  display: flex;
-  width: max-content;
-  /* Centrado cuando las colecciones caben; si no caben, «auto» vale 0 y empieza a la izquierda. */
-  margin: 0 auto;
-  padding: 0 var(--margen);
+/* Rejilla de colecciones (más de 3): tarjetas grandes, todas a la vista y sin movimiento.
+   2 columnas en el celular, 3 en computador. */
+.rejilla-colecciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem 1rem;
+  margin: 0;
+  padding: 0;
   list-style: none;
-  animation: tren-avanza var(--duracion, 12s) ease-in-out infinite alternate;
 }
 
-.tren:hover .tren-via,
-.tren:focus-within .tren-via {
-  animation-play-state: paused;
-}
-
-/* Recorrido = lo que sobra de la vía (100%) frente a lo visible (100cqw). Si no sobra nada,
-   min() deja el recorrido en 0 y el tren no se mueve. Pausa corta en cada extremo. */
-@keyframes tren-avanza {
-  0%,
-  12% {
-    transform: translateX(0);
-  }
-  88%,
-  100% {
-    transform: translateX(min(0px, calc(100cqw - 100%)));
+@media (min-width: 900px) {
+  .rejilla-colecciones {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem 1.5rem;
   }
 }
 
@@ -806,24 +845,10 @@ html:has(.catalogo) {
   position: relative;
 }
 
-.tren .tarjeta-coleccion {
-  flex: 0 0 auto;
-  width: clamp(12.5rem, 20vw, 18rem);
-  margin-right: clamp(0.75rem, 1.5vw, 1.25rem);
-}
-
-
-/* En pantallas táctiles (celular, tableta) el tren no se mueve solo: con el dedo no hay cómo
-   pausarlo, así que la persona lo desliza de lado a su ritmo. Igual si pidió menos movimiento. */
-@media (hover: none), (prefers-reduced-motion: reduce) {
-  .tren {
-    overflow-x: auto;
-    mask-image: none;
-  }
-
-  .tren-via {
-    animation: none;
-  }
+/* Temporada sobre el nombre, en el dorado de todos los antetítulos. */
+.tarjeta-coleccion .antetitulo {
+  margin: 0.9rem 0 0.25rem;
+  color: var(--oro-hondo);
 }
 
 .tarjeta-coleccion-foto {
@@ -840,7 +865,7 @@ html:has(.catalogo) {
 }
 
 .tarjeta-coleccion h3 {
-  margin: 0.9rem 0 0.25rem;
+  margin: 0 0 0.25rem;
   font-size: var(--t-h3);
   font-style: italic;
   line-height: 1.1;
@@ -910,51 +935,6 @@ html:has(.catalogo) {
 }
 
 /* --- Colección ----------------------------------------------------------------- */
-
-/* Portada de la colección, en arena como la del inicio. En el celular, las fotos van primero y
-   el texto debajo; en computador, el texto es una columna angosta y las fotos ocupan el resto. */
-.cabecera-coleccion {
-  display: grid;
-  gap: 1.5rem;
-  padding: 1.25rem 0 2.5rem;
-  background: var(--fondo-arena);
-}
-
-.cabecera-coleccion-texto {
-  padding: 0 var(--margen);
-}
-
-/* Tira de fotos: portada y campaña, deslizable de lado. */
-.cabecera-coleccion-fotos {
-  display: flex;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0 var(--margen);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-padding: 0 var(--margen);
-  list-style: none;
-  scrollbar-width: thin;
-}
-
-.cabecera-coleccion-fotos li {
-  position: relative;
-  flex: 0 0 auto;
-  width: 85vw;
-  aspect-ratio: 4 / 5;
-  background: var(--arena);
-  scroll-snap-align: start;
-}
-
-/* Si hay una sola foto, ocupa todo el ancho en el celular. */
-.cabecera-coleccion-fotos li:only-child {
-  width: 100%;
-}
-
-.cabecera-coleccion-fotos .imagen {
-  position: absolute;
-  inset: 0;
-}
 
 .prendas {
   padding: var(--espacio-seccion) var(--margen);
@@ -1050,29 +1030,106 @@ html:has(.catalogo) {
   background: var(--arena);
 }
 
-.tarjeta-foto .imagen,
-.tarjeta-foto .sin-foto {
+.tarjeta-foto > .sin-foto {
   position: absolute;
   inset: 0;
 }
 
-/* Segunda foto: encima de la primera, invisible; aparece al pasar el mouse (solo en computador).
-   En pantallas táctiles no se muestra ni se descarga. */
-.tarjeta-foto .foto-2 {
-  opacity: 0;
-  transition: opacity var(--suave) ease;
+/* Fotos deslizables dentro de la tarjeta (FotosTarjeta.tsx): una fila con «scroll-snap»,
+   cada foto ocupa toda la tarjeta y encaja sola al deslizar. */
+.fotos-tarjeta,
+.fotos-tarjeta-pista {
+  position: absolute;
+  inset: 0;
 }
 
-@media (hover: hover) {
-  .tarjeta-prenda:hover .foto-2 {
-    opacity: 1;
-  }
+.fotos-tarjeta-pista {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.fotos-tarjeta-pista::-webkit-scrollbar {
+  display: none;
+}
+
+.fotos-tarjeta-foto {
+  position: relative;
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+.fotos-tarjeta-foto .imagen {
+  position: absolute;
+  inset: 0;
+}
+
+/* Flechas: en computador aparecen al pasar el mouse; en el celular no hacen falta (se desliza). */
+.fotos-tarjeta-flecha {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0 0.15rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.92);
+  box-shadow: 0 2px 8px rgb(31 42 68 / 0.12);
+  color: var(--anil);
+  font: 400 var(--t-tarjeta)/1 var(--letra-sans), system-ui, sans-serif;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity var(--rapido);
+}
+
+.fotos-tarjeta-flecha.anterior {
+  left: 0.5rem;
+}
+
+.fotos-tarjeta-flecha.siguiente {
+  right: 0.5rem;
+}
+
+.tarjeta-prenda:hover .fotos-tarjeta-flecha,
+.fotos-tarjeta-flecha:focus-visible {
+  opacity: 1;
 }
 
 @media (hover: none) {
-  .tarjeta-foto .foto-2 {
+  .fotos-tarjeta-flecha {
     display: none;
   }
+}
+
+/* Puntitos: uno por foto; el de la foto que se ve, blanco y más ancho. */
+.fotos-tarjeta-puntos {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  gap: 0.3rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.fotos-tarjeta-puntos span {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.6);
+  box-shadow: 0 0 2px rgb(31 42 68 / 0.4);
+  transition: width var(--rapido);
+}
+
+.fotos-tarjeta-puntos span[data-activo] {
+  width: 1rem;
+  background: var(--blanco);
 }
 
 .tarjeta-prenda h3 {
@@ -1087,13 +1144,8 @@ html:has(.catalogo) {
   transition: color var(--rapido);
 }
 
-/* Toda la tarjeta lleva a la prenda; el corazón queda por encima. */
-.tarjeta-prenda h3 a::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-
+/* Las fotos y el nombre llevan a la prenda (antes un enlace invisible cubría toda la tarjeta,
+   pero no dejaría deslizar las fotos). */
 .tarjeta-prenda:hover h3 a {
   color: var(--oro-hondo);
 }
@@ -1174,31 +1226,210 @@ html:has(.catalogo) {
 
 /* --- Ficha de la prenda -------------------------------------------------------- */
 
-.galeria ul {
+/* Barra sobre la ficha: «← Volver a la colección» a la izquierda y «‹ Anterior · 2 de 5 ·
+   Siguiente ›» a la derecha. Botones claros para no tener que regresar al inicio. */
+.navegacion-pagina {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 1rem var(--margen);
+}
+
+.volver-coleccion,
+.prenda-vecinas a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--oro);
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--oro-hondo) !important;
+  font: 600 var(--t-chico)/1.2 var(--letra-sans), system-ui, sans-serif;
+  text-decoration: none;
+  transition: background-color var(--rapido);
+}
+
+.volver-coleccion:hover,
+.prenda-vecinas a:hover {
+  background: var(--oro-tenue);
+}
+
+.volver-coleccion strong {
+  font-weight: 700;
+  color: var(--anil);
+}
+
+.prenda-vecinas {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.prenda-posicion {
+  padding: 0 0.25rem;
+  font-size: var(--t-chico);
+  color: var(--anil-suave);
+  white-space: nowrap;
+}
+
+/* En el celular, el nombre de la colección no cabe junto a todo lo demás: se acorta con «…». */
+@media (max-width: 699px) {
+  .volver-coleccion {
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .prenda-vecinas {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Galería (Galeria.tsx): una foto grande a la vez en una fila deslizable, flechas, contador y
+   miniaturas. La foto no pasa del alto de la pantalla (debajo de la cabecera fija). */
+.galeria-visor {
+  position: relative;
+}
+
+.galeria-pista {
   display: flex;
   margin: 0;
   padding: 0;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   list-style: none;
   scrollbar-width: none;
 }
 
-.galeria li {
+.galeria-pista::-webkit-scrollbar {
+  display: none;
+}
+
+/* Cada foto se muestra con su propia forma, centrada y con sus esquinas redondeadas: sin
+   recuadro de relleno alrededor (antes el recuadro era redondo y la foto cuadrada, y chocaban). */
+.galeria {
+  --alto-galeria: min(125vw, 75svh); /* alto de la foto; en computador cambia (ver más abajo) */
+}
+
+.galeria-pista li {
+  display: grid;
+  place-items: center;
   flex: 0 0 100%;
-  aspect-ratio: 4 / 5;
-  /* En tableta la foto no pasa del alto de la pantalla (se recorta un poco por los lados). */
-  max-height: calc(100svh - var(--alto-cabecera) - 1rem);
+  height: var(--alto-galeria);
   scroll-snap-align: start;
+}
+
+/* El alto va con la misma variable y no con «100%»: dentro de la fila deslizable el porcentaje
+   no se calcula y la foto salía a su tamaño natural, recortada. */
+.galeria-pista .imagen {
+  width: auto;
+  height: var(--alto-galeria);
+  max-width: 100%;
+  object-fit: contain; /* una foto horizontal no se deforma */
+  border-radius: var(--radio-foto);
+}
+
+/* Flechas redondas blancas a los lados de la foto. */
+.galeria-flecha {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0 0.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.92);
+  box-shadow: 0 2px 10px rgb(31 42 68 / 0.12);
+  color: var(--anil);
+  font: 400 var(--t-h3)/1 var(--letra-sans), system-ui, sans-serif;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background-color var(--rapido);
+}
+
+.galeria-flecha:hover {
+  background: var(--blanco);
+}
+
+.galeria-flecha.anterior {
+  left: 0.75rem;
+}
+
+.galeria-flecha.siguiente {
+  right: 0.75rem;
+}
+
+/* «2 / 5» abajo a la derecha de la foto. */
+.galeria-contador {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  margin: 0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.92);
+  font: 600 var(--t-mini)/1.4 var(--letra-sans), system-ui, sans-serif;
+  color: var(--anil);
+}
+
+/* Miniaturas: una fila deslizable; la foto que se está viendo lleva borde dorado. */
+.galeria-miniaturas {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.75rem var(--margen) 0;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.galeria-miniaturas button {
+  position: relative;
+  display: block;
+  width: 4rem;
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: calc(var(--radio-foto) * 0.5);
+  background: var(--arena);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity var(--rapido);
+}
+
+.galeria-miniaturas button:hover,
+.galeria-miniaturas button[aria-current] {
+  opacity: 1;
+}
+
+.galeria-miniaturas button[aria-current] {
+  outline: 2px solid var(--oro-hondo);
+  outline-offset: 2px;
+}
+
+.galeria-miniaturas .imagen {
+  position: absolute;
+  inset: 0;
 }
 
 .galeria > .sin-foto {
   aspect-ratio: 4 / 5;
 }
 
-.pista {
-  margin: 0;
-  padding: 0.5rem var(--margen) 0;
+@media (prefers-reduced-motion: reduce) {
+  .galeria-pista {
+    scroll-behavior: auto;
+  }
 }
 
 .ficha-info {
@@ -1240,15 +1471,6 @@ html:has(.catalogo) {
   border-bottom: 1px solid var(--linea);
 }
 
-.ficha-precio:empty {
-  display: none;
-}
-
-.precio.grande {
-  font-size: var(--t-entrada);
-  font-weight: 600;
-  color: var(--anil);
-}
 
 .aviso-agotada {
   margin: 0;
@@ -1340,6 +1562,15 @@ html:has(.catalogo) {
   max-width: 32rem;
   margin: 0.875rem 0 0;
   font-size: var(--t-chico);
+  color: var(--anil-suave);
+}
+
+/* Precio bajo las tallas: tamaño de texto normal, tono suave. Informa sin gritar. */
+.precio-compra {
+  margin: 1.25rem 0 0;
+  font: 500 var(--t-base)/1.4 var(--letra-sans), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
   color: var(--anil-suave);
 }
 
@@ -1581,30 +1812,6 @@ html:has(.catalogo) {
     height: 3rem;
   }
 
-  .cabecera-coleccion {
-    grid-template-columns: minmax(18rem, 28rem) minmax(0, 1fr);
-    align-items: center;
-    gap: clamp(1.5rem, 3vw, 3rem);
-    padding-bottom: 2.5rem;
-  }
-
-  .cabecera-coleccion-texto {
-    order: -1;
-    padding-right: 0;
-  }
-
-  /* La altura manda: las fotos caben en la pantalla y las prendas asoman debajo. */
-  .cabecera-coleccion-fotos {
-    padding-left: 0;
-    scroll-padding-left: 0;
-  }
-
-  .cabecera-coleccion-fotos li,
-  .cabecera-coleccion-fotos li:only-child {
-    width: auto;
-    height: min(72vh, 44rem);
-  }
-
   .sobre-marca {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     align-items: center;
@@ -1616,26 +1823,24 @@ html:has(.catalogo) {
     display: grid;
     grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
     gap: clamp(2rem, 4vw, 4rem);
-    padding: 1rem var(--margen) 0;
+    padding: 0 var(--margen); /* arriba ya está la barra «Volver a la colección» */
   }
 
-  .galeria ul {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    overflow: visible;
+  /* En computador la galería se queda fija al bajar, igual que la información de al lado. */
+  .galeria {
+    position: sticky;
+    top: calc(var(--alto-cabecera) + 1rem);
+    align-self: start;
   }
 
-  /* Cada foto cabe completa en la pantalla, debajo de la cabecera fija: la altura la pone
-     la pantalla y el ancho sale de la proporción 4:5. Centrada en su columna. */
-  .galeria li {
-    flex: none;
-    height: calc(100svh - var(--alto-cabecera) - 2rem);
-    max-width: 100%;
+  /* La foto no pasa del alto de la pantalla, debajo de la cabecera fija. */
+  .galeria {
+    --alto-galeria: min(calc(100svh - var(--alto-cabecera) - 7rem), 48rem);
   }
 
-  .pista {
-    display: none;
+  .galeria-miniaturas {
+    justify-content: center;
+    padding-inline: 0;
   }
 
   .ficha-info {
@@ -1700,7 +1905,6 @@ html:has(.catalogo) {
 
 .tarjeta-foto,
 .tarjeta-coleccion-foto,
-.cabecera-coleccion-fotos li,
 .galeria > .sin-foto {
   border-radius: var(--radio-foto);
   overflow: hidden;
@@ -1808,11 +2012,6 @@ html:has(.catalogo) {
 }
 
 @media (min-width: 900px) {
-  .galeria li {
-    border-radius: var(--radio-foto);
-    overflow: hidden;
-  }
-
   .fundadora {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     align-items: center;
@@ -1836,16 +2035,6 @@ html:has(.catalogo) {
   }
 }
 
-/* --- Cabecera de colección: contexto, descripción y acciones -------------------- */
-
-/* Descripción de la colección: debajo del nombre (tamaño en la escala, ver --t-entrada). */
-.cabecera-coleccion-descripcion {
-  max-width: 30rem;
-  margin: 0 0 1.75rem;
-  color: var(--anil-suave);
-  white-space: pre-line;
-}
-
 /* Etiqueta de las opciones de talla y color: versalitas pequeñas, en gris azulado. */
 .opciones legend {
   font: 600 var(--t-mini)/1.3 var(--letra-sans), system-ui, sans-serif;
@@ -1854,60 +2043,11 @@ html:has(.catalogo) {
   color: var(--anil-suave);
 }
 
-.acciones-coleccion {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.625rem;
-}
-
 /* «N prendas» debajo de los botones, igual que .portada-dato del inicio. */
 .coleccion-dato {
   margin: 1.25rem 0 0;
   font-size: var(--t-chico);
   color: var(--anil-suave);
-}
-
-/* Nombre de la prenda sobre su foto: dice qué se está viendo y lleva a la prenda. */
-.foto-prenda {
-  position: absolute;
-  left: 0.75rem;
-  bottom: 0.75rem;
-  max-width: calc(100% - 1.5rem);
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  padding: 0.55rem 1rem;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 0.94);
-  color: var(--anil) !important;
-  font: 600 var(--t-chico)/1.2 var(--letra-sans), system-ui, sans-serif;
-  text-decoration: none;
-  box-shadow: 0 2px 10px rgb(31 42 68 / 0.12);
-}
-
-.foto-prenda::after {
-  content: "→";
-  color: var(--oro-hondo);
-}
-
-.foto-prenda:hover {
-  background: var(--blanco);
-}
-
-.foto-prenda-etiqueta {
-  font-size: var(--t-mini);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--oro-hondo);
-}
-
-/* En la cabecera de la colección, la espiral pasa arriba para dejar abajo el nombre de la prenda. */
-.cabecera-coleccion-fotos .sello {
-  top: 0.75rem;
-  right: 0.75rem;
-  bottom: auto;
-  width: clamp(3rem, 5vw, 4.25rem);
-  padding: 0.6rem;
 }
 
 /* El menú marca en qué página se está. */
@@ -1926,8 +2066,9 @@ html:has(.catalogo) {
   background: var(--oro-tenue);
 }
 
-.tarjeta-coleccion .antetitulo {
-  margin: 0 0 0.25rem;
+/* Sin temporada, el nombre va directo bajo la foto. */
+.tarjeta-coleccion-foto + h3 {
+  margin-top: 0.9rem;
 }
 
 #prendas {

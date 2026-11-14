@@ -15,15 +15,14 @@ const ordenPrendas = [
 
 const primeraFoto = { orderBy: { orden: "asc" }, take: 1 } satisfies Prisma.Coleccion$fotosArgs;
 
-// Tarjeta de prenda: la primera foto y la segunda, que aparece al pasar el mouse.
-const dosFotos = { orderBy: { orden: "asc" }, take: 2 } satisfies Prisma.Prenda$fotosArgs;
+// Tarjeta de prenda: sus fotos se pasan deslizando dentro de la tarjeta (FotosTarjeta.tsx),
+// sin entrar a la ficha. Se limitan para que una rejilla grande no descargue de más.
+export const FOTOS_POR_TARJETA = 6;
+const fotosTarjeta = { orderBy: { orden: "asc" }, take: FOTOS_POR_TARJETA } satisfies Prisma.Prenda$fotosArgs;
 
 function conFotosDeTarjeta<T extends { fotos: Foto[] }>({ fotos, ...p }: T) {
-  return {
-    ...p,
-    foto: fotos[0] ? conUrls(fotos[0]) : null,
-    foto2: fotos[1] ? conUrls(fotos[1]) : null,
-  };
+  const conDirecciones = fotos.map(conUrls);
+  return { ...p, foto: conDirecciones[0] ?? null, fotos: conDirecciones };
 }
 
 // Portada de una colección: la elegida en el panel; si no hay, su primera foto de campaña
@@ -64,7 +63,7 @@ export async function prendasDestacadas(limite: number) {
     where: { coleccion: { publicada: true }, fotos: { some: {} } },
     orderBy: [{ destacada: "desc" }, { createdAt: "desc" }],
     take: limite,
-    include: { fotos: dosFotos },
+    include: { fotos: fotosTarjeta },
   });
   return prendas.map(conFotosDeTarjeta);
 }
@@ -80,7 +79,7 @@ export const coleccionPublicada = cache(async (slug: string) => {
       fotos: { orderBy: { orden: "asc" } },
       prendas: {
         orderBy: ordenPrendas,
-        include: { fotos: dosFotos, categoria: { select: { slug: true, nombre: true } } },
+        include: { fotos: fotosTarjeta, categoria: { select: { slug: true, nombre: true } } },
       },
     },
   });
@@ -106,16 +105,46 @@ export const prendaPublicada = cache(async (slug: string) => {
   });
   if (!p) return null;
 
-  const otras = await db.prenda.findMany({
-    where: { coleccionId: p.coleccionId, id: { not: p.id } },
-    orderBy: ordenPrendas,
-    take: 4,
-    include: { fotos: dosFotos, categoria: { select: { slug: true, nombre: true } } },
-  });
+  const [hermanas, otras] = await Promise.all([
+    // Todas las prendas de la colección, en el mismo orden de la rejilla: para «Anterior / Siguiente».
+    db.prenda.findMany({
+      where: { coleccionId: p.coleccionId },
+      orderBy: ordenPrendas,
+      select: { id: true, slug: true, nombre: true },
+    }),
+    db.prenda.findMany({
+      where: { coleccionId: p.coleccionId, id: { not: p.id } },
+      orderBy: ordenPrendas,
+      take: 4,
+      include: { fotos: fotosTarjeta, categoria: { select: { slug: true, nombre: true } } },
+    }),
+  ]);
+
+  // Si la colección no tiene más prendas, se sugieren de otras colecciones publicadas: la ficha
+  // nunca termina sin un siguiente paso.
+  const deOtrasColecciones =
+    otras.length > 0
+      ? []
+      : await db.prenda.findMany({
+          where: { coleccion: { publicada: true }, coleccionId: { not: p.coleccionId }, fotos: { some: {} } },
+          orderBy: [{ destacada: "desc" }, { createdAt: "desc" }],
+          take: 4,
+          include: { fotos: fotosTarjeta },
+        });
+
+  // Anterior y siguiente dentro de la colección; después de la última vuelve a la primera.
+  const i = hermanas.findIndex((h) => h.id === p.id);
+  const total = hermanas.length;
+  const vecinas =
+    total > 1
+      ? { anterior: hermanas[(i - 1 + total) % total], siguiente: hermanas[(i + 1) % total], posicion: i + 1, total }
+      : null;
 
   return {
     ...p,
     fotos: p.fotos.map(conUrls),
     otras: otras.map(conFotosDeTarjeta),
+    deOtrasColecciones: deOtrasColecciones.map(conFotosDeTarjeta),
+    vecinas,
   };
 });

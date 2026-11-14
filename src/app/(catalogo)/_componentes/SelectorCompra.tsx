@@ -75,6 +75,8 @@ export function SelectorCompra({ prendaId, nombre, precio, medidasModelo, tallas
     mensaje = `Hola, vi ${nombre} en el catálogo y aparece agotada. ¿Va a volver a estar disponible?`;
   }
 
+  // Agotada no muestra tallas; el precio igual se ve, arriba del botón.
+  const precioSinOpciones = !disponible && precio;
   const faltaElegir = disponible && ((tallas.length > 1 && !talla) || (colores.length > 1 && !color));
   const mensajeCompleto = enlace ? `${mensaje}\n${enlace}` : mensaje;
   const textoBoton = disponible ? "Preguntar por WhatsApp" : "Preguntar si vuelve";
@@ -85,9 +87,13 @@ export function SelectorCompra({ prendaId, nombre, precio, medidasModelo, tallas
         <>
           <Opciones titulo="Talla" nombre="talla" opciones={tallas} valor={talla} cambiar={setTalla} />
           {medidasModelo && <p className="medidas-modelo">{medidasModelo}</p>}
+          {/* Precio bajo las tallas, discreto: primero la prenda, después el valor. */}
+          {precio && <p className="precio-compra">{precio}</p>}
           <Opciones titulo="Color" nombre="color" opciones={colores} valor={color} cambiar={setColor} muestra={muestraDeColor} />
         </>
       )}
+
+      {precioSinOpciones && <p className="precio-compra">{precio}</p>}
 
       <div className="compra-acciones" ref={acciones}>
         <EnlaceWhatsapp className="boton" mensaje={mensajeCompleto}>

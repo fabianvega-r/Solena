@@ -1,4 +1,4 @@
-// Página de una colección publicada: presentación, fotos de campaña y sus prendas.
+// Página de una colección publicada: portada (igual a la del inicio), su historia y sus prendas.
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -26,51 +26,46 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PaginaColeccion({ params }: Props) {
   const c = await coleccionPublicada((await params).slug);
   if (!c) notFound();
-  // Portada primero y luego las fotos de campaña, sin repetirla: la ropa abre la página.
-  const fotos = [...(c.portada ? [c.portada] : []), ...c.fotos.filter((f) => f.id !== c.portada?.id)];
-  // Si la foto es de una prenda (la portada suele serlo), se dice cuál es y se enlaza a ella.
-  const prendaDe = (f: (typeof fotos)[number]) => c.prendas.find((p) => p.id === f.prendaId);
   const total = c.prendas.length;
 
   return (
     <>
-      <header className="cabecera-coleccion">
-        {fotos.length > 0 && (
-          <ul className="cabecera-coleccion-fotos" aria-label="Fotos de la colección">
-            {fotos.map((f, i) => {
-              const prenda = prendaDe(f);
-              return (
-                <li key={f.id}>
-                  <Imagen foto={f} sizes="(min-width: 900px) 34vw, 85vw" prioridad={i === 0} />
-                  {i === 0 && <Espiral className="sello" animada />}
-                  {prenda && (
-                    <Link className="foto-prenda" href={`/prendas/${prenda.slug}`}>
-                      <span className="foto-prenda-etiqueta">Prenda</span>
-                      {prenda.nombre}
-                    </Link>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
+      {/* Mismo botón de regreso que la ficha de prenda: claro y en el mismo lugar. */}
+      <nav className="navegacion-pagina" aria-label="Navegación">
+        <Link className="volver-coleccion" href="/#colecciones">
+          <span aria-hidden>←</span> Todas las colecciones
+        </Link>
+      </nav>
 
-        {/* Jerarquía simple: ruta → qué es (antetítulo) → nombre → descripción → acciones.
-            Los nombres de las prendas no se listan aquí: ya salen en las fotos y en la rejilla. */}
-        <div className="cabecera-coleccion-texto">
-          <nav className="ruta" aria-label="Estás en">
-            <Link href="/">Inicio</Link>
-            <span aria-hidden> / </span>
-            <Link href="/#colecciones">Colecciones</Link>
-          </nav>
-          {c.temporada && <p className="antetitulo">{nombreTemporada(c.temporada)}</p>}
-          <h1 className="titular">{c.nombre}</h1>
-          {c.descripcion && <p className="cabecera-coleccion-descripcion">{c.descripcion}</p>}
-
-          <div className="acciones-coleccion">
+      {/* Misma portada que el inicio (clases .portada-*): un solo diseño en todo el catálogo.
+          Una sola línea de antetítulo, el nombre, la descripción y dos botones; el conteo de
+          prendas va dentro del botón principal. La foto conserva su forma (no se corta). */}
+      <header className="portada">
+        <div
+          className="portada-foto"
+          style={
+            c.portada
+              ? ({ "--proporcion": `${c.portada.ancho} / ${c.portada.alto}` } as React.CSSProperties)
+              : undefined
+          }
+        >
+          {c.portada ? (
+            <Imagen foto={c.portada} sizes="(min-width: 900px) 40vw, 100vw" prioridad />
+          ) : (
+            <div className="sin-foto">
+              <Espiral />
+            </div>
+          )}
+          <Espiral className="sello" animada />
+        </div>
+        <div className="portada-texto">
+          <p className="portada-antetitulo">{c.temporada ? nombreTemporada(c.temporada) : "Colección"}</p>
+          <h1 className="portada-titulo">{c.nombre}</h1>
+          {c.descripcion && <p className="portada-descripcion">{c.descripcion}</p>}
+          <div className="portada-acciones">
             {total > 0 && (
               <a className="boton" href="#prendas">
-                {total === 1 ? "Ver la prenda" : "Ver las prendas"}
+                {total === 1 ? "Ver la prenda" : `Ver las ${total} prendas`}
               </a>
             )}
             <EnlaceWhatsapp
@@ -80,7 +75,6 @@ export default async function PaginaColeccion({ params }: Props) {
               Preguntar por WhatsApp
             </EnlaceWhatsapp>
           </div>
-          {total > 0 && <p className="coleccion-dato">{total === 1 ? "1 prenda" : `${total} prendas`}</p>}
         </div>
       </header>
 

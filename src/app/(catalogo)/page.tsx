@@ -19,15 +19,20 @@ export const revalidate = 3600;
 // Cuántas prendas destacadas se muestran como máximo debajo de la portada.
 const MAXIMO_DESTACADAS = 6;
 
-// Hasta cuántas colecciones se muestran en bloques grandes; con más, se usa el tren.
+// Hasta cuántas colecciones se muestran en bloques grandes; con más, en rejilla de tarjetas.
 const MAXIMO_EN_BLOQUES = 3;
 
 // La vista previa de prendas de una colección aparece desde estas prendas (con una sola,
 // repetiría la foto grande del bloque).
 const MINIMO_VISTA_PREVIA = 2;
 
-// El tren de colecciones: cuánto tarda cada tarjeta en pasar. Más segundos = más despacio.
-const SEGUNDOS_POR_VAGON = 6;
+// «Cómo comprar»: solo pasos que son ciertos para cualquier pedido por WhatsApp. Si un día hay
+// datos fijos de envío o pagos, se agregan aquí.
+const PASOS_COMPRA = [
+  ["Elige tu prenda", "Mira las colecciones y abre la prenda que te guste para ver todas sus fotos y tallas."],
+  ["Escríbenos por WhatsApp", "Toca «Preguntar por WhatsApp»: el mensaje ya lleva la prenda, tu talla y tu color."],
+  ["Confirmamos tu pedido", "Te respondemos con la disponibilidad, el valor del envío y la forma de pago."],
+] as const;
 
 // Tarjetas destacadas: 2 columnas en el celular, 3 en computador.
 const TAMANOS_DESTACADAS = "(min-width: 900px) 30vw, 50vw";
@@ -59,10 +64,12 @@ export default async function Inicio() {
   // La primera es la más reciente (ver coleccionesPublicadas): va en la portada.
   const [reciente, ...otras] = colecciones;
 
-  // Si una prenda destacada tiene como foto principal la misma de la portada, se muestra su
-  // segunda foto (si la tiene) para no ver la misma imagen dos veces seguidas.
+  // Si una prenda destacada tiene como foto principal la misma de la portada, su primera foto
+  // pasa al final (si tiene más) para no ver la misma imagen dos veces seguidas.
   const destacadas = destacadasCrudas.map((p) =>
-    p.foto?.id === reciente.portada?.id && p.foto2 ? { ...p, foto: p.foto2, foto2: p.foto } : p,
+    p.fotos[0]?.id === reciente.portada?.id && p.fotos.length > 1
+      ? { ...p, fotos: [...p.fotos.slice(1), p.fotos[0]] }
+      : p,
   );
 
   return (
@@ -139,13 +146,39 @@ export default async function Inicio() {
         </section>
       )}
 
+      {/* Cómo comprar: la clienta ve que hay un proceso claro y una persona real detrás. */}
+      <section className="como-comprar aparece" aria-labelledby="titulo-como-comprar">
+        <div className="seccion-cabecera centrada">
+          <div>
+            <p className="seccion-antetitulo">Así de fácil</p>
+            <h2 id="titulo-como-comprar">Cómo comprar</h2>
+          </div>
+        </div>
+        <ol className="pasos-compra">
+          {PASOS_COMPRA.map(([titulo, texto], i) => (
+            <li key={titulo}>
+              <span className="paso-numero" aria-hidden>
+                {i + 1}
+              </span>
+              <h3>{titulo}</h3>
+              <p>{texto}</p>
+            </li>
+          ))}
+        </ol>
+        <div className="como-comprar-accion">
+          <EnlaceWhatsapp className="boton" mensaje="Hola, quiero hacer un pedido.">
+            Escribir por WhatsApp
+          </EnlaceWhatsapp>
+        </div>
+      </section>
+
       {/* 3. Las demás colecciones. */}
       {otras.length > 0 && (
         <section className="inicio-colecciones aparece" id="colecciones" aria-labelledby="titulo-colecciones">
           <div className="seccion-cabecera">
             <div>
-              <p className="seccion-antetitulo">Explora</p>
-              <h2 id="titulo-colecciones">{otras.length === 1 ? "Otra colección" : "Más colecciones"}</h2>
+              <p className="seccion-antetitulo">Colecciones</p>
+              <h2 id="titulo-colecciones">Sigue descubriendo</h2>
             </div>
           </div>
 
@@ -194,30 +227,27 @@ export default async function Inicio() {
               ))}
             </ul>
           ) : (
-            // Muchas: el tren. Si no caben en la pantalla, va hasta la última y regresa; si caben,
-            // se queda quieto (ver .tren en catalogo.css).
-            <div className="tren" style={{ "--duracion": `${otras.length * SEGUNDOS_POR_VAGON}s` } as React.CSSProperties}>
-              <ul className="tren-via">
-                {otras.map((c) => (
-                  <li key={c.id} className="tarjeta-coleccion">
-                    <div className="tarjeta-coleccion-foto">
-                      {c.portada ? (
-                        <Imagen foto={c.portada} sizes="(min-width: 900px) 20vw, 60vw" alt="" />
-                      ) : (
-                        <div className="sin-foto">
-                          <Espiral />
-                        </div>
-                      )}
-                    </div>
-                    <h3>
-                      <Link href={`/colecciones/${c.slug}`}>{c.nombre}</Link>
-                    </h3>
-                    {c.temporada && <p className="antetitulo">{nombreTemporada(c.temporada)}</p>}
-                    <p>{cuantas(c.totalPrendas)}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            // Muchas: rejilla de tarjetas grandes, todas a la vista y sin movimiento.
+            <ul className="rejilla-colecciones">
+              {otras.map((c) => (
+                <li key={c.id} className="tarjeta-coleccion">
+                  <div className="tarjeta-coleccion-foto">
+                    {c.portada ? (
+                      <Imagen foto={c.portada} sizes="(min-width: 900px) 30vw, 50vw" alt="" />
+                    ) : (
+                      <div className="sin-foto">
+                        <Espiral />
+                      </div>
+                    )}
+                  </div>
+                  {c.temporada && <p className="antetitulo">{nombreTemporada(c.temporada)}</p>}
+                  <h3>
+                    <Link href={`/colecciones/${c.slug}`}>{c.nombre}</Link>
+                  </h3>
+                  <p>{cuantas(c.totalPrendas)}</p>
+                </li>
+              ))}
+            </ul>
           )}
         </section>
       )}

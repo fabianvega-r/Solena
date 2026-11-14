@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { prendaPublicada } from "@/lib/catalogo";
 import { ordenarTallas, precio } from "@/lib/tienda";
 import { Espiral } from "../../_componentes/Espiral";
-import { Imagen } from "../../_componentes/Imagen";
+import { Galeria } from "../../_componentes/Galeria";
 import { SelectorCompra } from "../../_componentes/SelectorCompra";
 import { TAMANOS_REJILLA, TarjetaPrenda } from "../../_componentes/TarjetaPrenda";
 
@@ -27,43 +27,51 @@ export default async function PaginaPrenda({ params }: Props) {
   const p = await prendaPublicada((await params).slug);
   if (!p) notFound();
 
+  const otrasPrendas = p.otras.length > 0 ? p.otras : p.deOtrasColecciones;
+
   return (
     <>
+      {/* Barra de navegación: volver a la colección (izquierda) y pasar a la prenda anterior o
+          siguiente de la misma colección (derecha), sin tener que regresar y volver a entrar. */}
+      <nav className="navegacion-pagina" aria-label="Navegación de la colección">
+        <Link className="volver-coleccion" href={`/colecciones/${p.coleccion.slug}`}>
+          <span aria-hidden>←</span> Volver a la colección <strong>{p.coleccion.nombre}</strong>
+        </Link>
+        {p.vecinas && (
+          <div className="prenda-vecinas">
+            <Link href={`/prendas/${p.vecinas.anterior.slug}`} aria-label={`Prenda anterior: ${p.vecinas.anterior.nombre}`}>
+              <span aria-hidden>‹</span> Anterior
+            </Link>
+            <span className="prenda-posicion">
+              {p.vecinas.posicion} de {p.vecinas.total}
+            </span>
+            <Link href={`/prendas/${p.vecinas.siguiente.slug}`} aria-label={`Prenda siguiente: ${p.vecinas.siguiente.nombre}`}>
+              Siguiente <span aria-hidden>›</span>
+            </Link>
+          </div>
+        )}
+      </nav>
+
       <article className="ficha">
-        <div className="galeria">
-          {p.fotos.length > 0 ? (
-            <ul aria-label={`Fotos de ${p.nombre}`}>
-              {p.fotos.map((f, i) => (
-                <li key={f.id}>
-                  <Imagen
-                    foto={f}
-                    sizes="(min-width: 900px) 58vw, 100vw"
-                    prioridad={i === 0}
-                    alt={f.alt || (i === 0 ? p.nombre : `${p.nombre}, foto ${i + 1}`)}
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
+        {p.fotos.length > 0 ? (
+          <Galeria fotos={p.fotos} nombre={p.nombre} />
+        ) : (
+          <div className="galeria">
             <div className="sin-foto">
               <Espiral />
             </div>
-          )}
-          {p.fotos.length > 1 && <p className="pista">Desliza para ver las {p.fotos.length} fotos</p>}
-        </div>
+          </div>
+        )}
 
         <div className="ficha-info">
-          {/* Una sola línea dice dónde está la prenda y sirve para regresar: Inicio / Colección. */}
-          <nav className="ruta" aria-label="Estás en">
-            <Link href="/">Inicio</Link>
-            <span aria-hidden> / </span>
-            <Link href={`/colecciones/${p.coleccion.slug}`}>{p.coleccion.nombre}</Link>
-          </nav>
           <h1>{p.nombre}</h1>
-          <div className="ficha-precio">
-            {p.precio != null && <p className="precio grande">{precio(p.precio)}</p>}
-            {!p.disponible && <p className="aviso-agotada">Agotada por ahora</p>}
-          </div>
+          {/* El precio no va aquí arriba: aparece bajo las tallas (SelectorCompra), cuando la clienta
+              ya vio la prenda y eligió su talla. */}
+          {!p.disponible && (
+            <div className="ficha-precio">
+              <p className="aviso-agotada">Agotada por ahora</p>
+            </div>
+          )}
           {p.descripcion && <p className="descripcion">{p.descripcion}</p>}
           <SelectorCompra
             prendaId={p.id}
@@ -95,12 +103,13 @@ export default async function PaginaPrenda({ params }: Props) {
         </div>
       </article>
 
-      {p.otras.length > 0 && (
+      {/* Más prendas: de la misma colección («Completa el look») o, si no hay, de otras. */}
+      {otrasPrendas.length > 0 && (
         <section className="otras aparece" aria-labelledby="titulo-otras">
-          <p className="seccion-antetitulo">De la misma colección</p>
-          <h2 id="titulo-otras">Completa el look</h2>
+          <p className="seccion-antetitulo">{p.otras.length > 0 ? "De la misma colección" : "De otras colecciones"}</p>
+          <h2 id="titulo-otras">{p.otras.length > 0 ? "Completa el look" : "También te puede gustar"}</h2>
           <ul className="rejilla-prendas">
-            {p.otras.map((o) => (
+            {otrasPrendas.map((o) => (
               <li key={o.id}>
                 <TarjetaPrenda prenda={o} sizes={TAMANOS_REJILLA} />
               </li>

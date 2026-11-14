@@ -9,7 +9,7 @@ type Props = {
   // Solo para la primera foto visible al abrir la página.
   prioridad?: boolean;
   alt?: string;
-  className?: string; // clase extra, p. ej. "foto-2" en la tarjeta
+  className?: string; // clase extra para casos especiales
 };
 
 export function Imagen({ foto, sizes, prioridad = false, alt, className }: Props) {
