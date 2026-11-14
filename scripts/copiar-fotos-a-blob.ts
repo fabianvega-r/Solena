@@ -1,11 +1,13 @@
-// Copia todas las fotos de MinIO (local) a Cloudflare R2, con los mismos nombres, para publicar
-// el sitio sin perder fotos. La base de datos no cambia: solo guarda el nombre (clave) de cada foto.
+// Copia todas las fotos de MinIO (local) a Vercel Blob, con los mismos nombres, para publicar el
+// sitio sin perder fotos. La base de datos no cambia: solo guarda el nombre (clave) de cada foto.
 //
 // Uso (desde la carpeta del proyecto, con Docker/MinIO encendido):
-//   1. Agrega al .env las 4 variables de R2 (R2_ENDPOINT, R2_BUCKET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY).
-//   2. npm run fotos:copiar-a-r2
-// Se puede repetir sin problema: las fotos que ya están en R2 se saltan.
-import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+//   1. Agrega al .env la variable BLOB_READ_WRITE_TOKEN (Vercel → Storage → tu Blob → .env.local).
+//   2. npm run fotos:copiar-a-blob
+//   3. El script muestra FOTOS_URL_PUBLICA: agrégala al .env y a Vercel.
+// Se puede repetir sin problema: las fotos que ya están en Vercel Blob se saltan.
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { head, put } from "@vercel/blob";
 import { PrismaClient } from "@prisma/client";
 
 function env(nombre: string): string {
@@ -14,27 +16,23 @@ function env(nombre: string): string {
   return valor;
 }
 
-const origen = new S3Client({
+env("BLOB_READ_WRITE_TOKEN"); // la usa @vercel/blob por su cuenta; se revisa aquí para avisar claro
+
+const minio = new S3Client({
   region: process.env.S3_REGION ?? "auto",
   endpoint: env("S3_ENDPOINT"),
   forcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
   credentials: { accessKeyId: env("S3_ACCESS_KEY_ID"), secretAccessKey: env("S3_SECRET_ACCESS_KEY") },
 });
-const destino = new S3Client({
-  region: "auto",
-  endpoint: env("R2_ENDPOINT"),
-  credentials: { accessKeyId: env("R2_ACCESS_KEY_ID"), secretAccessKey: env("R2_SECRET_ACCESS_KEY") },
-});
-const BUCKET_ORIGEN = env("S3_BUCKET");
-const BUCKET_DESTINO = env("R2_BUCKET");
+const BUCKET = env("S3_BUCKET");
 const VARIANTES = ["sm", "md", "lg"]; // las mismas de src/lib/imagenes.ts
+const UN_ANIO = 60 * 60 * 24 * 365; // igual que src/lib/storage.ts
 
-async function yaExiste(clave: string) {
+async function yaExiste(clave: string): Promise<string | null> {
   try {
-    await destino.send(new HeadObjectCommand({ Bucket: BUCKET_DESTINO, Key: clave }));
-    return true;
+    return (await head(clave)).url;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -46,26 +44,27 @@ async function main() {
 
   let copiados = 0;
   let saltados = 0;
+  let unaUrl: string | null = null; // para mostrar la dirección base del almacenamiento
   const faltan: string[] = [];
   for (const { clave } of fotos) {
     for (const v of VARIANTES) {
       const archivo = `${clave}/${v}.webp`;
-      if (await yaExiste(archivo)) {
+      const existente = await yaExiste(archivo);
+      if (existente) {
+        unaUrl ??= existente;
         saltados++;
         continue;
       }
       try {
-        const obj = await origen.send(new GetObjectCommand({ Bucket: BUCKET_ORIGEN, Key: archivo }));
+        const obj = await minio.send(new GetObjectCommand({ Bucket: BUCKET, Key: archivo }));
         const cuerpo = Buffer.from(await obj.Body!.transformToByteArray());
-        await destino.send(
-          new PutObjectCommand({
-            Bucket: BUCKET_DESTINO,
-            Key: archivo,
-            Body: cuerpo,
-            ContentType: "image/webp",
-            CacheControl: "public, max-age=31536000, immutable", // igual que src/lib/storage.ts
-          }),
-        );
+        const subido = await put(archivo, cuerpo, {
+          access: "public",
+          contentType: "image/webp",
+          addRandomSuffix: false,
+          cacheControlMaxAge: UN_ANIO,
+        });
+        unaUrl ??= subido.url;
         copiados++;
         process.stdout.write(".");
       } catch {
@@ -76,6 +75,10 @@ async function main() {
 
   console.log(`\n✔ Copiados: ${copiados} · ya estaban: ${saltados} · no encontrados en MinIO: ${faltan.length}`);
   if (faltan.length) console.log("No se encontraron (revisa que Docker/MinIO esté encendido):\n  " + faltan.join("\n  "));
+  if (unaUrl) {
+    console.log(`\nAgrega esta variable al .env y en Vercel (Settings → Environment Variables):`);
+    console.log(`FOTOS_URL_PUBLICA=${new URL(unaUrl).origin}`);
+  }
 }
 
 main().catch((e) => {

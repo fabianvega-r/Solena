@@ -9,7 +9,7 @@ Base de datos y API para mostrar colecciones de ropa con sus fotos.
 | Entorno    | App         | Base de datos   | Fotos         |
 |------------|-------------|-----------------|---------------|
 | Local      | `next dev`  | Postgres (Docker) | MinIO (Docker) |
-| Producción | Vercel      | Neon            | Cloudflare R2 |
+| Producción | Vercel      | Neon            | Vercel Blob   |
 
 El código es el mismo en los dos entornos; solo cambian las variables de `.env`.
 
@@ -89,20 +89,27 @@ Cada foto devuelta incluye `urls.sm|md|lg`, `srcSet`, `ancho`, `alto` y `blurDat
 
 ## Despliegue gratuito
 
+Todo en planes gratis y sin tarjeta: Vercel (Hobby), Vercel Blob (fotos) y Neon (base de datos).
+
 1. **Neon** (https://neon.com) → crea un proyecto. Copia la URL *pooled* en `DATABASE_URL` y la
-   *direct* en `DIRECT_URL`.
-2. **Cloudflare R2** → crea el bucket `solena`, activa el acceso público (subdominio `r2.dev` o un
-   dominio propio) y crea un token de API con permiso de lectura y escritura sobre el bucket.
-   - `S3_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com`
-   - `S3_REGION=auto`, `S3_FORCE_PATH_STYLE=false`
-   - `S3_PUBLIC_URL=https://<subdominio>.r2.dev`
-3. **Vercel** → importa el repositorio y pega todas las variables de `.env` en *Settings → Environment Variables*.
-4. Crea las tablas en Neon desde tu equipo: `DATABASE_URL=... DIRECT_URL=... npm run db:deploy`.
+   *direct* en `DIRECT_URL`. Crea las tablas desde tu equipo: `npm run db:deploy`.
+2. **Vercel Blob** → en vercel.com: *Storage → Create → Blob*. En la pestaña *.env.local* copia
+   `BLOB_READ_WRITE_TOKEN` a tu `.env`.
+3. **Copia las fotos** de MinIO a Vercel Blob (con Docker encendido): `npm run fotos:copiar-a-blob`. Al final
+   muestra `FOTOS_URL_PUBLICA=…`: agrégala al `.env`. Desde ahí tu equipo también guarda las fotos en Vercel Blob
+   (si existe `BLOB_READ_WRITE_TOKEN`, `src/lib/storage.ts` lo usa en vez de MinIO).
+4. **Vercel** → *Add New → Project* → importa el repositorio. Antes de *Deploy*, en *Environment Variables*:
+   `DATABASE_URL`, `DIRECT_URL`, `ADMIN_TOKEN` (nueva, 32+ caracteres), `BLOB_READ_WRITE_TOKEN` y
+   `FOTOS_URL_PUBLICA`. Conecta el Blob al proyecto (*Storage → tu Blob → Connect Project*).
+
+> La base de datos de Neon es la misma para tu equipo y para el sitio publicado: lo que hagas en el panel local
+> se ve en el sitio real.
 
 ### Límites a tener en cuenta
 
 - **Vercel acepta como máximo 4.5 MB por petición.** La API rechaza fotos de más de 4 MB; el panel ya las
   reduce en el navegador antes de subirlas. Si subes por API directamente, redúcelas tú.
-- **R2 gratuito: 10 GB.** Con ~400 KB por foto (las 3 variantes juntas) caben unas **25 000 fotos**.
-  Consulta el uso real en `/api/uso`.
+- **Vercel Blob gratis: 1 GB** (y 10 GB de transferencia al mes). Con ~400 KB por foto (las 3 variantes juntas)
+  caben unas **2 500 fotos**. Si se pasa, Vercel no cobra: pausa las fotos hasta el mes siguiente. Vigila el uso
+  en el panel, página *Espacio*, y elimina colecciones antiguas desde ahí.
 - **Neon gratuito: 1 GB** de base de datos. Solo guarda texto, así que alcanza para cientos de miles de prendas.

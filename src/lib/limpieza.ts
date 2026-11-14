@@ -14,8 +14,8 @@ export const DIAS_ANTIGUA = 60;
 // «Poco impacto»: menos de esta cantidad de visitas en DIAS_IMPACTO y ningún WhatsApp.
 const POCAS_VISITAS = 10;
 
-// Plan gratuito de Cloudflare R2: 10 GB.
-export const LIMITE_GRATIS_MB = 10 * 1024;
+// Plan gratuito de Vercel Blob (Hobby): 1 GB. Si se pasa, Vercel no cobra: pausa las fotos.
+export const LIMITE_GRATIS_MB = 1024;
 
 export type FilaEspacio = Awaited<ReturnType<typeof resumenEspacio>>["colecciones"][number];
 

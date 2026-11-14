@@ -3,11 +3,11 @@ import type { Prisma } from "@prisma/client";
 import { exigirAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { conUrls } from "@/lib/imagenes";
+import { formatoTamano, LIMITE_GRATIS_MB } from "@/lib/limpieza";
 import { calcularPagina } from "@/lib/paginacion";
 import { revisarColeccion, type Revision } from "@/lib/publicacion";
 import { Paginacion } from "../_componentes/Paginacion";
 
-const LIMITE_GRATIS_MB = 10 * 1024; // Cloudflare R2: 10 GB gratis
 const POR_PAGINA = 12;
 
 const ESTADOS = [
@@ -92,8 +92,8 @@ export default async function InicioPanel({ searchParams }: { searchParams: Prom
       </div>
 
       <p className="ayuda">
-        {uso._count} fotos · {megas.toFixed(1)} MB usados de {LIMITE_GRATIS_MB / 1024} GB gratis (
-        {((megas / LIMITE_GRATIS_MB) * 100).toFixed(2)}%)
+        {uso._count} fotos · {formatoTamano(megas)} usados de {LIMITE_GRATIS_MB / 1024} GB gratis (
+        {((megas / LIMITE_GRATIS_MB) * 100).toFixed(1)} %) · <Link href="/admin/espacio">Ver espacio</Link>
       </p>
 
       {totalColecciones === 0 ? (

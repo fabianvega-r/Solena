@@ -17,7 +17,7 @@ Otros comandos: `npm run db:migrate` (crear una migración tras cambiar `prisma/
 |---|---|---|
 | App | `next dev` (Next 15, App Router) | Vercel |
 | Datos | Neon (también en local; el Postgres de `docker-compose` no se usa) | Neon |
-| Fotos | MinIO en Docker (`cgr.dev/chainguard/minio`; las imágenes de MinIO ya no están en Docker Hub) | Cloudflare R2 (pendiente) |
+| Fotos | MinIO en Docker (`cgr.dev/chainguard/minio`); con `BLOB_READ_WRITE_TOKEN` en `.env`, Vercel Blob | Vercel Blob (gratis 1 GB, sin tarjeta) |
 
 - `src/lib/` es la fuente única de las reglas de negocio, compartida por la API (`src/app/api`) y el panel (`src/app/admin`):
   - `esquemas.ts`: validación zod de colecciones y prendas.
@@ -54,7 +54,7 @@ Otros comandos: `npm run db:migrate` (crear una migración tras cambiar `prisma/
   «Administrar la tienda» y barra de sesión. Rediseño editorial hecho (Cormorant + Instrument Sans, escala única
   `--t-*` y `--espacio-seccion` en `catalogo.css`; precio solo en la ficha; sin carrito ni buscador, se vende por
   WhatsApp). Falta: las mejoras de la investigación que siguen abiertas (ver abajo).
-- [ ] Etapa 3: Cloudflare R2 + Vercel (pasos en el README, *Despliegue gratuito*).
+- [ ] Etapa 3: Vercel + Vercel Blob (pasos en el README, *Despliegue gratuito*). Las fotos de MinIO se pasan con `npm run fotos:copiar-a-blob`.
 
 ### Plan de mejoras (investigación: `reports/Páginas de moda para Solena.md`)
 
