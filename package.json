@@ -12,7 +12,8 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "fotos:copiar-a-r2": "tsx --env-file=.env scripts/copiar-fotos-a-r2.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
